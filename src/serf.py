@@ -1,5 +1,6 @@
 from datetime import datetime as dt
 import json
+import multiprocessing as mp
 import os
 import time
 
@@ -70,14 +71,16 @@ def people(whisp_cache, threshold=0):
 
 
 def writer(whisp_cache, form_key):
+    #GENERATROR JSON DUMPS
     forms = form(form_key, whisp_cache)
+    for form in forms:
+        for gen in form::
     jsons = [
         json.dumps(form, indent=2, sort_keys=True, default=str) 
-        for form in forms
     ]
 
     for i in range(0, len(jsons)):
-        with open(f"./newsdumps/{date_gen()}{2**i}.json", "a") as outfile:
+        with open(f"./newsdumps/{date_gen()}-{2**i}.json", "a") as outfile:
             outfile.write(jsons[i])
     print("\nWrite complete")
 

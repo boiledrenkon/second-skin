@@ -12,21 +12,20 @@ def form(key, ee_cache):
 
 
 def simple_array(ee_cache):
-    return [
-        {
+    for ee in ee_cache:
+        yield {
             "content": ee.content,
             "name": ee.author.name,
             "created_at": ee.created_at,
             "edited_at": ee.edited_at,
             "reactions": ee.reactions,
             "message_id": ee.id
-        } for ee in ee_cache
-    ]
+        } 
 
 
 def full_array(ee_cache):
-    return [
-        {
+    for ee in ee_cache:
+        yield {
             "content": ee.content,
             "name": ee.author.name,
             "created_at": ee.created_at,
@@ -57,55 +56,56 @@ def full_array(ee_cache):
             "tts": ee.tts,
             "type": ee.type,
             "webhook_id": ee.webhook_id,
-        } for ee in ee_cache
-    ]
+        } 
 
 
 def simple_map(ee_cache):
-    return {
-        f"{ee.created_at}###{ee.author.name}###{ee.id}": {
-            "content": ee.content,
-            "name": ee.author.name,
-            "created_at": ee.created_at,
-            "edited_at": ee.edited_at,
-            "reactions": ee.reactions,
-            "message_id": ee.id
-        } for ee in ee_cache
-    }
+    for ee in ee_cache:
+        yield {
+            f"{ee.created_at}###{ee.author.name}###{ee.id}": {
+                "content": ee.content,
+                "name": ee.author.name,
+                "created_at": ee.created_at,
+                "edited_at": ee.edited_at,
+                "reactions": ee.reactions,
+                "message_id": ee.id
+            }
+        }
 
 
 def full_map(ee_cache):
-    return {
-        f"{ee.created_at}###{ee.author.name}###{ee.id}": {
-            "content": ee.content,
-            "name": ee.author.name,
-            "created_at": ee.created_at,
-            "edited_at": ee.edited_at,
-            "message_id": ee.id,
-            "reactions": ee.reactions,
-            "activity": ee.activity,
-            "application": ee.application,
-            "attachments": ee.attachments,
-            "channel": ee.channel,
-            "channel_mentions": ee.channel_mentions, 
-            "clean_content": ee.clean_content,
-            "embeds": ee.embeds,
-            "flags": ee.flags,
-            "guild": ee.guild,
-            "jump_url": ee.jump_url,
-            "mention_everyone": ee.mention_everyone,
-            "mentions": ee.mentions,
-            "nonce": ee.nonce,
-            "pinned": ee.pinned,
-            "raw_channel_mentions": ee.raw_channel_mentions,
-            "raw_mentions": ee.raw_mentions,
-            "raw_role_mentions": ee.raw_role_mentions,
-            "reference": ee.reference,
-            "role_mentions": ee.role_mentions,
-            "stickers": ee.stickers,
-            "system_content": ee.system_content,
-            "tts": ee.tts,
-            "type": ee.type,
-            "webhook_id": ee.webhook_id,
-        } for ee in ee_cache
+    for ee in ee_cache:
+        yield { 
+               f"{ee.created_at}###{ee.author.name}###{ee.id}": {
+                   "content": ee.content,
+                   "name": ee.author.name,
+                   "created_at": ee.created_at,
+                   "edited_at": ee.edited_at,
+                   "message_id": ee.id,
+                   "reactions": ee.reactions,
+                   "activity": ee.activity,
+                   "application": ee.application,
+                   "attachments": ee.attachments,
+                   "channel": ee.channel,
+                   "channel_mentions": ee.channel_mentions, 
+                   "clean_content": ee.clean_content,
+                   "embeds": ee.embeds,
+                   "flags": ee.flags,
+                   "guild": ee.guild,
+                   "jump_url": ee.jump_url,
+                   "mention_everyone": ee.mention_everyone,
+                   "mentions": ee.mentions,
+                   "nonce": ee.nonce,
+                   "pinned": ee.pinned,
+                   "raw_channel_mentions": ee.raw_channel_mentions,
+                   "raw_mentions": ee.raw_mentions,
+                   "raw_role_mentions": ee.raw_role_mentions,
+                   "reference": ee.reference,
+                   "role_mentions": ee.role_mentions,
+                   "stickers": ee.stickers,
+                   "system_content": ee.system_content,
+                   "tts": ee.tts,
+                   "type": ee.type,
+                   "webhook_id": ee.webhook_id,
+        }
     }
