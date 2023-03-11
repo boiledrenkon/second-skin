@@ -1,0 +1,165 @@
+#!/opt/homebrew/bin/python3
+import sys
+import time
+
+import discord
+from discord.ext import commands
+
+from src import serf 
+from src.util import resolve_user_token, resolve_input
+
+# ------------------------------------------------------------------------------
+# .----. .-. .----. .---.  .----. .----. .----.                                |
+# | {}  \| |{ {__  /  ___}/  {}  \| {}  }| {}  \                               |
+# |     /| |.-._} }\     }\      /| .-. \|     /                               |
+# `----' `-'`----'  `---'  `----' `-' `-'`----'                                |
+#  .---..-.  .-..----.  .----. .----.  .---.                                   |
+# /  ___}\ \/ / | {}  }/  {}  \| {}  }/   __}                                  |
+# \     } }  {  | {}  }\      /| .-. \\  {_ }                                  |
+#  `---'  `--'  `----'  `----' `-' `-' `---'                                   |
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# KEYS                                                                         | 
+#-------------------------------------------------------------------------------
+# COLLECT KEYS : go to reap and ama    | 
+#---------------------------------------
+# reaper keys:                         | 
+#---------------------------------------
+#   l: cache < target
+#   n: up to today
+#   d: one day
+#---------------------------------------
+# ama keys:                            | 
+#---------------------------------------
+#   m: user 
+#   a: all
+#   g: in users 
+#   TODO - date ranges
+#   TODO still need to build out the file reader for username list
+#---------------------------------------
+# writer keys:                         |
+#---------------------------------------
+#   1: simple array
+#   2: complex array
+#   4: simple map 
+#   8: complex map
+#--------------------
+# Note:             |
+#--------------------
+# simple vs complex refers to  metadata
+# map keys are stored at date###message_id###author
+# ^preserve order, uniqueness, sorting 
+#--------------------
+# Examples:         |
+#--------------------
+# $del lm 0203 2100
+# ^starting 2023 Feb 3 remove ~2100 messages | not exact atm 
+# TODO - make deleted messages exact
+# $col dg 0304  
+# ^write everyone messages from march 4th march 5th or now 
+# ^writer key says 
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# SET UP                                                                       |
+#-------------------------------------------------------------------------------
+client = commands.Bot(
+    command_prefix="$",
+    self_bot=True,
+    help_command=None,
+    intents=None
+)
+#-------------------------------------------------------------------------------
+# DIAGNOSTICS                                                                  |
+#-------------------------------------------------------------------------------
+@client.event
+async def on_ready():
+    print("Online")
+
+
+@client.command()
+async def musub(ctx, message):
+    while True:
+        await ctx.send(message)
+        time.sleep(.25)
+
+
+@client.command(pass_context=True)
+async def diagnostic(ctx, message, start_date, target):
+    #print(message)
+    #print(start_date)
+    #print(target)
+    #print(ctx.channel)
+    #print(ctx.history)
+    #print(ctx.__class__)
+    pass
+
+
+@client.command()
+async def k(ctx, collect_flags):
+    scroll = await ona.reap(ctx, client.user, collect_flags)
+    ona.people(scroll)
+    return
+#-------------------------------------------------------------------------------
+# COLLECTORS                                                                   |
+#-------------------------------------------------------------------------------
+# Last Date                            | 
+#---------------------------------------
+# 2023-03-02                           | 
+#---------------------------------------
+@client.command(pass_context=True)
+async def sil(ctx, collect_flags, start_date=None, target=None):
+    scroll = await collections(
+        ctx,
+        client.user,
+        collect_flags,
+        start_date,
+        target
+    )
+    await ona.john_alite(ctx, scroll)
+    return
+
+
+@client.command()
+async def col(ctx, collect_flags, writer_key, start_date=None, target=None):
+    scroll = await collections(
+        ctx,
+        client.user,
+        collect_flags,
+        start_date,
+        target
+    )
+    writer_key = int(writer_key)
+    ona.writer(scroll, writer_key)
+    return
+#-------------------------------------------------------------------------------
+# HELPERS                                                                      | 
+#-------------------------------------------------------------------------------
+async def collections(
+    ctx,
+    user,
+    collect_flags,
+    start_date=None,
+    target=None
+):
+    start_date, target = resolve_input(start_date, target)
+    return await ona.reap(
+        ctx,
+        user,
+        collect_flags,
+        start_date,
+        target
+    )
+#-------------------------------------------------------------------------------
+# END OF FILE                                                                  |
+#-------------------------------------------------------------------------------
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print('Please invoke with username')
+        exit()
+    else:
+        token = resolve_user_token(sys.argv[1])
+        client.run(token, bot=False)
