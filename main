@@ -100,16 +100,14 @@ async def diagnostic(ctx, message, start_date, target):
 
 @client.command()
 async def k(ctx, collect_flags):
-    scroll = await ona.reap(ctx, client.user, collect_flags)
-    ona.people(scroll)
+    scroll = await serf.reap(ctx, client.user, collect_flags)
+    serf.people(scroll)
     return
 #-------------------------------------------------------------------------------
 # COLLECTORS                                                                   |
 #-------------------------------------------------------------------------------
-# Last Date                            | 
-#---------------------------------------
-# 2023-03-02                           | 
-#---------------------------------------
+# Last Date                            | 2023-03-11                            |  
+#-------------------------------------------------------------------------------
 @client.command(pass_context=True)
 async def sil(ctx, collect_flags, start_date=None, target=None):
     scroll = await collections(
@@ -119,7 +117,7 @@ async def sil(ctx, collect_flags, start_date=None, target=None):
         start_date,
         target
     )
-    await ona.john_alite(ctx, scroll)
+    await serf.john_alite(ctx, scroll)
     return
 
 
@@ -133,7 +131,7 @@ async def col(ctx, collect_flags, writer_key, start_date=None, target=None):
         target
     )
     writer_key = int(writer_key)
-    ona.writer(scroll, writer_key)
+    serf.writer(scroll, writer_key)
     return
 #-------------------------------------------------------------------------------
 # HELPERS                                                                      | 
@@ -146,7 +144,7 @@ async def collections(
     target=None
 ):
     start_date, target = resolve_input(start_date, target)
-    return await ona.reap(
+    return await serf.reap(
         ctx,
         user,
         collect_flags,
@@ -163,3 +161,6 @@ if __name__ == "__main__":
     else:
         token = resolve_user_token(sys.argv[1])
         client.run(token, bot=False)
+#-------------------------------------------------------------------------------
+# END OF END OF FILE                                                           |
+#-------------------------------------------------------------------------------
