@@ -1,6 +1,7 @@
 from src.util import resolve_key
+import json
 
-def form(key, ee_cache): 
+def form(key, whisp_cache): 
     forms = {
         1: simple_array,
         2: full_array,
@@ -8,104 +9,111 @@ def form(key, ee_cache):
         8: full_map
     }
     specs = resolve_key(key)
-    return [ forms[spec](ee_cache) for spec in specs ]
+    return [ 
+        json.dumps(
+            forms[spec](whisp_cache),
+            indent=2,
+            sort_keys=True,
+            default=str
+        ) for spec in specs 
+    ]
 
 
-def simple_array(ee_cache):
-    for ee in ee_cache:
-        yield {
-            "content": ee.content,
-            "name": ee.author.name,
-            "created_at": ee.created_at,
-            "edited_at": ee.edited_at,
-            "reactions": ee.reactions,
-            "message_id": ee.id
-        } 
+def simple_array(whisp_cache):
+    return [
+        {
+            "content": whisp.content,
+            "name": whisp.author.name,
+            "created_at": whisp.created_at,
+            "edited_at": whisp.edited_at,
+            "reactions": whisp.reactions,
+            "message_id": whisp.id
+        } for whisp in whisp_cache 
+    ]
 
 
-def full_array(ee_cache):
-    for ee in ee_cache:
-        yield {
-            "content": ee.content,
-            "name": ee.author.name,
-            "created_at": ee.created_at,
-            "edited_at": ee.edited_at,
-            "message_id": ee.id,
-            "reactions": ee.reactions,
-            "activity": ee.activity,
-            "application": ee.application,
-            "attachments": ee.attachments,
-            "channel": ee.channel,
-            "channel_mentions": ee.channel_mentions, 
-            "clean_content": ee.clean_content,
-            "embeds": ee.embeds,
-            "flags": ee.flags,
-            "guild": ee.guild,
-            "jump_url": ee.jump_url,
-            "mention_everyone": ee.mention_everyone,
-            "mentions": ee.mentions,
-            "nonce": ee.nonce,
-            "pinned": ee.pinned,
-            "raw_channel_mentions": ee.raw_channel_mentions,
-            "raw_mentions": ee.raw_mentions,
-            "raw_role_mentions": ee.raw_role_mentions,
-            "reference": ee.reference,
-            "role_mentions": ee.role_mentions,
-            "stickers": ee.stickers,
-            "system_content": ee.system_content,
-            "tts": ee.tts,
-            "type": ee.type,
-            "webhook_id": ee.webhook_id,
-        } 
+def full_array(whisp_cache):
+    return [
+        {
+            "content": whisp.content,
+            "name": whisp.author.name,
+            "created_at": whisp.created_at,
+            "edited_at": whisp.edited_at,
+            "message_id": whisp.id,
+            "reactions": whisp.reactions,
+            "activity": whisp.activity,
+            "application": whisp.application,
+            "attachments": whisp.attachments,
+            "channel": whisp.channel,
+            "channel_mentions": whisp.channel_mentions, 
+            "clean_content": whisp.clean_content,
+            "embeds": whisp.embeds,
+            "flags": whisp.flags,
+            "guild": whisp.guild,
+            "jump_url": whisp.jump_url,
+            "mention_everyone": whisp.mention_everyone,
+            "mentions": whisp.mentions,
+            "nonce": whisp.nonce,
+            "pinned": whisp.pinned,
+            "raw_channel_mentions": whisp.raw_channel_mentions,
+            "raw_mentions": whisp.raw_mentions,
+            "raw_role_mentions": whisp.raw_role_mentions,
+            "reference": whisp.reference,
+            "role_mentions": whisp.role_mentions,
+            "stickers": whisp.stickers,
+            "system_content": whisp.system_content,
+            "tts": whisp.tts,
+            "type": whisp.type,
+            "webhook_id": whisp.webhook_id,
+        } for whisp in whisp_cache 
+    ]
 
 
-def simple_map(ee_cache):
-    for ee in ee_cache:
-        yield {
-            f"{ee.created_at}###{ee.author.name}###{ee.id}": {
-                "content": ee.content,
-                "name": ee.author.name,
-                "created_at": ee.created_at,
-                "edited_at": ee.edited_at,
-                "reactions": ee.reactions,
-                "message_id": ee.id
-            }
-        }
+def simple_map(whisp_cache):
+    return {
+        f"{whisp.created_at}###{whisp.author.name}###{whisp.id}": {
+            "content": whisp.content,
+            "name": whisp.author.name,
+            "created_at": whisp.created_at,
+            "edited_at": whisp.edited_at,
+            "reactions": whisp.reactions,
+            "message_id": whisp.id
+        } for whisp in whisp_cache 
+    }
 
 
-def full_map(ee_cache):
-    for ee in ee_cache:
-        yield { 
-               f"{ee.created_at}###{ee.author.name}###{ee.id}": {
-                   "content": ee.content,
-                   "name": ee.author.name,
-                   "created_at": ee.created_at,
-                   "edited_at": ee.edited_at,
-                   "message_id": ee.id,
-                   "reactions": ee.reactions,
-                   "activity": ee.activity,
-                   "application": ee.application,
-                   "attachments": ee.attachments,
-                   "channel": ee.channel,
-                   "channel_mentions": ee.channel_mentions, 
-                   "clean_content": ee.clean_content,
-                   "embeds": ee.embeds,
-                   "flags": ee.flags,
-                   "guild": ee.guild,
-                   "jump_url": ee.jump_url,
-                   "mention_everyone": ee.mention_everyone,
-                   "mentions": ee.mentions,
-                   "nonce": ee.nonce,
-                   "pinned": ee.pinned,
-                   "raw_channel_mentions": ee.raw_channel_mentions,
-                   "raw_mentions": ee.raw_mentions,
-                   "raw_role_mentions": ee.raw_role_mentions,
-                   "reference": ee.reference,
-                   "role_mentions": ee.role_mentions,
-                   "stickers": ee.stickers,
-                   "system_content": ee.system_content,
-                   "tts": ee.tts,
-                   "type": ee.type,
-                   "webhook_id": ee.webhook_id,
-        }
+def full_map(whisp_cache):
+    return {
+               f"{whisp.created_at}###{whisp.author.name}###{whisp.id}": {
+                   "content": whisp.content,
+                   "name": whisp.author.name,
+                   "created_at": whisp.created_at,
+                   "edited_at": whisp.edited_at,
+                   "message_id": whisp.id,
+                   "reactions": whisp.reactions,
+                   "activity": whisp.activity,
+                   "application": whisp.application,
+                   "attachments": whisp.attachments,
+                   "channel": whisp.channel,
+                   "channel_mentions": whisp.channel_mentions, 
+                   "clean_content": whisp.clean_content,
+                   "embeds": whisp.embeds,
+                   "flags": whisp.flags,
+                   "guild": whisp.guild,
+                   "jump_url": whisp.jump_url,
+                   "mention_everyone": whisp.mention_everyone,
+                   "mentions": whisp.mentions,
+                   "nonce": whisp.nonce,
+                   "pinned": whisp.pinned,
+                   "raw_channel_mentions": whisp.raw_channel_mentions,
+                   "raw_mentions": whisp.raw_mentions,
+                   "raw_role_mentions": whisp.raw_role_mentions,
+                   "reference": whisp.reference,
+                   "role_mentions": whisp.role_mentions,
+                   "stickers": whisp.stickers,
+                   "system_content": whisp.system_content,
+                   "tts": whisp.tts,
+                   "type": whisp.type,
+                   "webhook_id": whisp.webhook_id,
+        } for whisp in whisp_cache
     }

@@ -1,11 +1,9 @@
 from datetime import datetime as dt
-import json
-import multiprocessing as mp
 import os
 import time
 
 from src.format import form
-from src.util import date_check, date_gen
+from src.util import date_check, date_gen, runny 
 
 async def ama(ctx, user, flag, sun):
     mode = {
@@ -45,13 +43,14 @@ async def reap(ctx, user, collect_flags, sun, target):
 
 
 async def john_alite(ctx, whisp_cache):
-    print(f"\nsilencer started at {dt.now()}")
+    print(f"\nI stawted at {dt.now()}")
+    print("\t-john_alite")
     for whisp in whisp_cache:
         print("#", end="", flush=True)
         time.sleep(2)
         await whisp.delete()
-    print(f"\nsilencer ended at {dt.now()}")
-
+    print(f"\nI  finished at {dt.now()}")
+    print("\t-john_alite")
     return
 
 
@@ -70,17 +69,9 @@ def people(whisp_cache, threshold=0):
     return
 
 
-def writer(whisp_cache, form_key):
-    #GENERATROR JSON DUMPS
+def editor(whisp_cache, form_key):
     forms = form(form_key, whisp_cache)
-    for form in forms:
-        jsons = [
-            json.dumps(form, indent=2, sort_keys=True, default=str) 
-        ]
+    runny(forms)
 
-    for i in range(0, len(jsons)):
-        with open(f"./newsdumps/{date_gen()}-{2**i}.json", "a") as outfile:
-            outfile.write(jsons[i])
-    print("\nWrite complete")
-
-    return
+    print("Write complete.")
+    return 

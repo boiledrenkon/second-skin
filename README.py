@@ -15,7 +15,7 @@
 #---------------------------------------
 
 #---------------------------------------
-# writer keys:                         
+# editor keys:                         
 #---------------------------------------
 #   1: simple array
 #   2: complex array
@@ -28,7 +28,7 @@
 #---------------------------------------
 # $del lm 0203 2100
 # ^starting 2023 Feb 3 remove ~2100 messages  not exact atm 
-# $col dg 0304  
+# $col na 15 0311  
 # ^write everyone messages from march 4th march 5th or now 
-# ^writer key says 
+# ^editor key says 
 #---------------------------------------
