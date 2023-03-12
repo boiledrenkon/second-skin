@@ -1,13 +1,9 @@
 #!/opt/homebrew/bin/python3
-import sys
-import time
-
+import sys, time
 import discord
 from discord.ext import commands
-
 from src import serf 
 from src.util import resolve_user_token, resolve_input
-
 #----------------------------------------
 # SET UP
 #----------------------------------------
@@ -26,25 +22,22 @@ async def on_ready():
 
 
 @client.command()
-async def musub(ctx, message):
+async def repeat(ctx, message):
     while True:
         await ctx.send(message)
         time.sleep(.25)
 
 
 @client.command(pass_context=True)
-async def diagnostic(ctx, message, start_date, target):
-    #print(message)
-    #print(start_date)
-    #print(target)
-    #print(ctx.channel)
-    #print(ctx.history)
-    #print(ctx.__class__)
-    pass
+async def diagnostic(ctx, message):
+    #as needed
+    print(dir(ctx))
+    print(message)
+    return
 
 
 @client.command()
-async def k(ctx, collect_flags):
+async def poll(ctx, collect_flags):
     scroll = await serf.reap(ctx, client.user, collect_flags)
     serf.people(scroll)
     return

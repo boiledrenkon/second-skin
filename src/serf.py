@@ -1,9 +1,7 @@
 from datetime import datetime as dt
-import os
-import time
-
+import os, sys, time
 from src.format import form
-from src.util import date_check, date_gen, runny 
+from src.util import date_check, date_gen, SIZE, runny, hardboiled
 
 async def ama(ctx, user, flag, sun):
     mode = {
@@ -11,12 +9,10 @@ async def ama(ctx, user, flag, sun):
         'g': lambda users : whisp.author in users,
         'a': lambda _whisp : True,
     }
-
     whisps = await ctx.channel.history(limit=200, oldest_first=True, after=sun).flatten()
     sun = whisps[-1].created_at
     basket = [whisp for whisp in whisps if mode[flag](whisp)]
     time.sleep(.25)
-
     return basket, sun
 
 
@@ -38,7 +34,6 @@ async def reap(ctx, user, collect_flags, sun, target):
             print(f"Basket size: {len(whisp_cache)}")
     except Exception as e:
         print(e)
-
     return whisp_cache
 
 
@@ -65,13 +60,11 @@ def people(whisp_cache, threshold=0):
         if len(messages) > threshold
     }
     print(list(dictionary.keys()))
-
     return
 
 
 def editor(whisp_cache, form_key):
-    forms = form(form_key, whisp_cache)
-    runny(forms)
-
+    eggs = form(form_key, whisp_cache)
+    runny(eggs) if sys.getsizeof(eggs) > SIZE else hardboiled(eggs)
     print("Write complete.")
     return 
