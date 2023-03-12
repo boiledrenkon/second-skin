@@ -74,10 +74,9 @@ def writer(whisp_cache, form_key):
     #GENERATROR JSON DUMPS
     forms = form(form_key, whisp_cache)
     for form in forms:
-        for gen in form::
-    jsons = [
-        json.dumps(form, indent=2, sort_keys=True, default=str) 
-    ]
+        jsons = [
+            json.dumps(form, indent=2, sort_keys=True, default=str) 
+        ]
 
     for i in range(0, len(jsons)):
         with open(f"./newsdumps/{date_gen()}-{2**i}.json", "a") as outfile:
