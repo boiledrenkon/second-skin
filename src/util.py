@@ -1,4 +1,5 @@
 from datetime import datetime as dt
+import json
 import toml as tl
 
 #-------------------------------------------------------------------------------
@@ -32,6 +33,11 @@ def date_check(sun, whisp_cache):
     last = whisp_cache[-1].created_at
 
     return int(sun.day) == int(last.day)
+
+def writer(battery, form_id):
+    with open(f"./newsdumps/{date_gen()}-{form_id}.json", "a") as f:
+        for tron in battery: 
+            json.dump(tron, f, indent=2, sort_keys=True, default=str)
 #-------------------------------------------------------------------------------
 # FORMS                                                                        |
 #-------------------------------------------------------------------------------

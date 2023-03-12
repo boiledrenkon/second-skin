@@ -1,11 +1,9 @@
 from datetime import datetime as dt
-import json
-import multiprocessing as mp
 import os
 import time
 
 from src.format import form
-from src.util import date_check, date_gen
+from src.util import date_check, date_gen, writer
 
 async def ama(ctx, user, flag, sun):
     mode = {
@@ -70,18 +68,18 @@ def people(whisp_cache, threshold=0):
     return
 
 
-def writer(whisp_cache, form_key):
-    #GENERATROR JSON DUMPS
+
+def editor(whisp_cache, form_key):
     forms = form(form_key, whisp_cache)
-    for form in forms:
-        for gen in form::
-    jsons = [
-        json.dumps(form, indent=2, sort_keys=True, default=str) 
-    ]
+#    stories = []
+#    processes = [runny(forms[i], 2**i) for i in range(0, len(forms))]
+#    for p in processes:
+#        stories.append(p)
+#        p.start()
+#
+#    for story in stories():
+#        story.join()
+    for i in range(0, len(forms)):
+        writer(forms[i], 2**i)
 
-    for i in range(0, len(jsons)):
-        with open(f"./newsdumps/{date_gen()}-{2**i}.json", "a") as outfile:
-            outfile.write(jsons[i])
-    print("\nWrite complete")
-
-    return
+    return 

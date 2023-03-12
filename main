@@ -17,10 +17,8 @@ client = commands.Bot(
     help_command=None,
     intents=None
 )
-
-
 #----------------------------------------
-# DIAGNOSTICS
+# DIPPERS 
 #----------------------------------------
 @client.event
 async def on_ready():
@@ -50,8 +48,6 @@ async def k(ctx, collect_flags):
     scroll = await serf.reap(ctx, client.user, collect_flags)
     serf.people(scroll)
     return
-
-
 #----------------------------------------
 # COLLECTORS
 #----------------------------------------
@@ -71,7 +67,7 @@ async def sil(ctx, collect_flags, start_date=None, target=None):
 
 
 @client.command()
-async def col(ctx, collect_flags, writer_key, start_date=None, target=None):
+async def col(ctx, collect_flags, editor_key, start_date=None, target=None):
     scroll = await collections(
         ctx,
         client.user,
@@ -79,11 +75,9 @@ async def col(ctx, collect_flags, writer_key, start_date=None, target=None):
         start_date,
         target
     )
-    writer_key = int(writer_key)
-    serf.writer(scroll, writer_key)
+    editor_key = int(editor_key)
+    serf.editor(scroll, editor_key)
     return
-
-
 #----------------------------------------
 # HELPERS
 #----------------------------------------
@@ -102,8 +96,6 @@ async def collections(
         start_date,
         target
     )
-
-
 #----------------------------------------
 # END OF FILE
 #----------------------------------------
