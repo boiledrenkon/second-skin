@@ -1,5 +1,6 @@
 from datetime import datetime as dt
 import json
+import multiprocessing as mp
 import toml as tl
 
 #-------------------------------------------------------------------------------
@@ -34,10 +35,29 @@ def date_check(sun, whisp_cache):
 
     return int(sun.day) == int(last.day)
 
-def writer(battery, form_id):
+
+def writer(tons, form_id):
     with open(f"./newsdumps/{date_gen()}-{form_id}.json", "a") as f:
-        for tron in battery: 
-            json.dump(tron, f, indent=2, sort_keys=True, default=str)
+        f.write(tons)
+
+
+def runny(shakers):
+    movers = []
+    for grain, salt in enumerate(shakers):
+        form_id = 2**grain 
+
+        pepper = mp.Process(
+            target=writer,
+            args=(salt, form_id)
+        )
+
+        movers.append(pepper)
+        pepper.start()
+
+    for van in movers:
+        van.join()
+
+    return
 #-------------------------------------------------------------------------------
 # FORMS                                                                        |
 #-------------------------------------------------------------------------------

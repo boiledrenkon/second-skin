@@ -3,7 +3,7 @@ import os
 import time
 
 from src.format import form
-from src.util import date_check, date_gen, writer
+from src.util import date_check, date_gen, runny 
 
 async def ama(ctx, user, flag, sun):
     mode = {
@@ -43,13 +43,14 @@ async def reap(ctx, user, collect_flags, sun, target):
 
 
 async def john_alite(ctx, whisp_cache):
-    print(f"\nsilencer started at {dt.now()}")
+    print(f"\nI stawted at {dt.now()}")
+    print("\t-john_alite")
     for whisp in whisp_cache:
         print("#", end="", flush=True)
         time.sleep(2)
         await whisp.delete()
-    print(f"\nsilencer ended at {dt.now()}")
-
+    print(f"\nI  finished at {dt.now()}")
+    print("\t-john_alite")
     return
 
 
@@ -68,18 +69,9 @@ def people(whisp_cache, threshold=0):
     return
 
 
-
 def editor(whisp_cache, form_key):
     forms = form(form_key, whisp_cache)
-#    stories = []
-#    processes = [runny(forms[i], 2**i) for i in range(0, len(forms))]
-#    for p in processes:
-#        stories.append(p)
-#        p.start()
-#
-#    for story in stories():
-#        story.join()
-    for i in range(0, len(forms)):
-        writer(forms[i], 2**i)
+    runny(forms)
 
+    print("Write complete.")
     return 

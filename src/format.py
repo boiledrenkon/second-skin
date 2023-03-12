@@ -1,4 +1,5 @@
 from src.util import resolve_key
+import json
 
 def form(key, whisp_cache): 
     forms = {
@@ -8,24 +9,32 @@ def form(key, whisp_cache):
         8: full_map
     }
     specs = resolve_key(key)
-    return [ forms[spec](whisp_cache) for spec in specs ]
+    return [ 
+        json.dumps(
+            forms[spec](whisp_cache),
+            indent=2,
+            sort_keys=True,
+            default=str
+        ) for spec in specs 
+    ]
 
 
 def simple_array(whisp_cache):
-    for whisp in whisp_cache:
-        yield {
+    return [
+        {
             "content": whisp.content,
             "name": whisp.author.name,
             "created_at": whisp.created_at,
             "edited_at": whisp.edited_at,
             "reactions": whisp.reactions,
             "message_id": whisp.id
-        } 
+        } for whisp in whisp_cache 
+    ]
 
 
 def full_array(whisp_cache):
-    for whisp in whisp_cache:
-        yield {
+    return [
+        {
             "content": whisp.content,
             "name": whisp.author.name,
             "created_at": whisp.created_at,
@@ -56,26 +65,25 @@ def full_array(whisp_cache):
             "tts": whisp.tts,
             "type": whisp.type,
             "webhook_id": whisp.webhook_id,
-        } 
+        } for whisp in whisp_cache 
+    ]
 
 
 def simple_map(whisp_cache):
-    for whisp in whisp_cache:
-        yield {
-            f"{whisp.created_at}###{whisp.author.name}###{whisp.id}": {
-                "content": whisp.content,
-                "name": whisp.author.name,
-                "created_at": whisp.created_at,
-                "edited_at": whisp.edited_at,
-                "reactions": whisp.reactions,
-                "message_id": whisp.id
-            }
-        }
+    return {
+        f"{whisp.created_at}###{whisp.author.name}###{whisp.id}": {
+            "content": whisp.content,
+            "name": whisp.author.name,
+            "created_at": whisp.created_at,
+            "edited_at": whisp.edited_at,
+            "reactions": whisp.reactions,
+            "message_id": whisp.id
+        } for whisp in whisp_cache 
+    }
 
 
 def full_map(whisp_cache):
-    for whisp in whisp_cache:
-        yield {
+    return {
                f"{whisp.created_at}###{whisp.author.name}###{whisp.id}": {
                    "content": whisp.content,
                    "name": whisp.author.name,
@@ -107,5 +115,5 @@ def full_map(whisp_cache):
                    "tts": whisp.tts,
                    "type": whisp.type,
                    "webhook_id": whisp.webhook_id,
-            }
-        }
+        } for whisp in whisp_cache
+    }
