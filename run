@@ -2,7 +2,7 @@
 import sys, time
 import discord
 from discord.ext import commands
-from src import serf 
+from src import s, serf, stone 
 from src.util import resolve_user_token, resolve_input
 #----------------------------------------
 # SET UP
@@ -39,7 +39,7 @@ async def diagnostic(ctx, message):
 @client.command()
 async def poll(ctx, collect_flags):
     scroll = await serf.reap(ctx, client.user, collect_flags)
-    serf.people(scroll)
+    s.people(scroll)
     return
 #----------------------------------------
 # COLLECTORS
@@ -69,7 +69,7 @@ async def col(ctx, collect_flags, editor_key, start_date=None, target=None):
         target
     )
     editor_key = int(editor_key)
-    serf.editor(scroll, editor_key)
+    stone.editor(scroll, editor_key)
     return
 #----------------------------------------
 # HELPERS
@@ -94,8 +94,7 @@ async def collections(
 #----------------------------------------
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print('Please invoke with username')
-        exit()
+        exit('Please invoke with username')
     else:
         token = resolve_user_token(sys.argv[1])
         client.run(token, bot=False)

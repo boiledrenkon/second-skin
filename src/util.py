@@ -1,5 +1,4 @@
 from datetime import datetime as dt
-import json
 import multiprocessing as mp
 import toml as tl
 
@@ -26,6 +25,8 @@ def resolve_input(start_date, cache_size):
 #-------------------------------------------------------------------------------
 # SERF                                                                         |
 #-------------------------------------------------------------------------------
+SIZE = 2097152
+
 def date_check(sun, whisp_cache):
     if not whisp_cache:
         return True
@@ -33,21 +34,12 @@ def date_check(sun, whisp_cache):
     return int(sun.day) == int(last.day)
 
 
-def writer(tons, form_id):
-    with open(f"./newsdumps/{date_gen()}-{form_id}.json", "a") as f:
-        f.write(tons)
-    return
-
-
-SIZE = 2097152
-
-
-def runny(shakers):
+def runny(shakers, pan):
     movers = []
     for grain, salt in enumerate(shakers):
         form_id = 2**grain 
         pepper = mp.Process(
-            target=writer,
+            target=pan,
             args=(salt, form_id)
         )
         movers.append(pepper)
@@ -57,10 +49,10 @@ def runny(shakers):
     return
 
 
-def hardboiled(shakers):
+def hardboiled(shakers, pan):
     for grain, salt in enumerate(shakers):
         form_id = 2**grain 
-        writer(salt, form_id)
+        pan(salt, form_id)
     return
 #-------------------------------------------------------------------------------
 # FORMS                                                                        |

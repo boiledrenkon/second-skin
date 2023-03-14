@@ -1,7 +1,6 @@
 from datetime import datetime as dt
 import os, sys, time
-from src.format import form
-from src.util import date_check, date_gen, SIZE, runny, hardboiled
+from src.util import date_check, date_gen
 
 async def ama(ctx, user, flag, sun):
     mode = {
@@ -38,33 +37,10 @@ async def reap(ctx, user, collect_flags, sun, target):
 
 
 async def john_alite(ctx, whisp_cache):
-    print(f"\nI stawted at {dt.now()}")
-    print("\t-john_alite")
+    print(f"\nI stawted at {dt.now()}\n\t-john_alite")
     for whisp in whisp_cache:
         print("#", end="", flush=True)
         time.sleep(2)
         await whisp.delete()
-    print(f"\nI  finished at {dt.now()}")
-    print("\t-john_alite")
+    print(f"\nI  finished at {dt.now()}\n\t-john_alite")
     return
-
-
-def people(whisp_cache, threshold=0):
-    group = {
-        whisp.author.name: whisp.author.name.append(whisp) or [whisp]
-        for whisp in whisp_cache
-    }
-    dictionary = {
-        author: len(messages)
-        for author, messages in group
-        if len(messages) > threshold
-    }
-    print(list(dictionary.keys()))
-    return
-
-
-def editor(whisp_cache, form_key):
-    eggs = form(form_key, whisp_cache)
-    runny(eggs) if sys.getsizeof(eggs) > SIZE else hardboiled(eggs)
-    print("Write complete.")
-    return 
