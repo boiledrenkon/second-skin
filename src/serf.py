@@ -1,6 +1,6 @@
 from datetime import datetime as dt
 import os, sys, time
-from src.util import date_check, date_gen
+from src.util import date_check, gend
 
 async def ama(ctx, user, flag, sun):
     mode = {

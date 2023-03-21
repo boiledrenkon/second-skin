@@ -1,18 +1,41 @@
 #!/opt/homebrew/bin/python3
+
+import json
+
 import sys, time
 import discord
 from discord.ext import commands
-from src import s, serf, stone 
+from src import s, serf, chisel 
 from src.util import resolve_user_token, resolve_input
+from src.api import summaries
 #----------------------------------------
 # SET UP
 #----------------------------------------
 client = commands.Bot(
-    command_prefix="$",
+    command_prefix="*",
     self_bot=True,
     help_command=None,
     intents=None
 )
+#----------------------------------------
+# Ma
+#----------------------------------------
+@client.command()
+async def o_o(ctx, target=None):
+    collect_flags = "da"
+    editor_key = "1"
+    start_date = "0319"
+    scroll = await collections(
+        ctx,
+        client.user,
+        collect_flags,
+        start_date,
+        target
+    )
+    editor_key = int(editor_key)
+    # only using data available in all formats currently
+    tablets = chisel.editor(scroll, editor_key)[0]
+    summaries(tablets)
 #----------------------------------------
 # DIPPERS 
 #----------------------------------------
@@ -69,7 +92,7 @@ async def col(ctx, collect_flags, editor_key, start_date=None, target=None):
         target
     )
     editor_key = int(editor_key)
-    stone.editor(scroll, editor_key)
+    chisel.editor(scroll, editor_key)
     return
 #----------------------------------------
 # HELPERS
@@ -92,12 +115,16 @@ async def collections(
 #----------------------------------------
 # END OF FILE
 #----------------------------------------
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        exit('Please invoke with username')
-    else:
-        token = resolve_user_token(sys.argv[1])
-        client.run(token, bot=False)
+#if __name__ == "__main__":
+#    if len(sys.argv) < 2:
+#        exit('Please invoke with username')
+#    else:
+#        token = resolve_user_token(sys.argv[1])
+#        client.run(token, bot=False)
+if "__main__" == __name__:
+    with open("/Users/Shared/programs/cyborg/newsdumps/2023-3-20-1.json", "r") as nf:
+        data = json.loads(nf.read())
+        summaries(data)
 #----------------------------------------
 # END OF END OF FILE
 #----------------------------------------

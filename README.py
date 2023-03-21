@@ -26,9 +26,11 @@
 #---------------------------------------
 # examples:         
 #---------------------------------------
-# $del lm 0203 2100
+# $sil lm 0203 2100
 # ^starting 2023 Feb 3 remove ~2100 messages  not exact atm 
 # $col na 15 0311  
 # ^write everyone messages from march 4th march 5th or now 
 # ^editor key says 
 #---------------------------------------
+
+# $sil nm 0311

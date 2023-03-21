@@ -2,12 +2,19 @@ from datetime import datetime as dt
 import multiprocessing as mp
 import toml as tl
 
+
+#-------------------------------------------------------------------------------
+# GENERAL                                                                      |
+#-------------------------------------------------------------------------------
+def open_toml():
+    with open("src/tokens.toml", "r") as masks:
+        souls = tl.load(masks)
+    return souls
 #-------------------------------------------------------------------------------
 # MAIN                                                                         |
 #-------------------------------------------------------------------------------
 def resolve_user_token(name):
-    with open("src/tokens.toml", "r") as masks:
-        souls = tl.load(masks)
+    souls = open_toml()
     return souls['tokens'][name] if souls['tokens'].get(name) else exit('Please use valid username')
 
 
@@ -23,7 +30,7 @@ def resolve_input(start_date, cache_size):
         cache_size = int(cache_size)
     return start_date, cache_size
 #-------------------------------------------------------------------------------
-# SERF                                                                         |
+# SERF/STONE                                                                   |
 #-------------------------------------------------------------------------------
 SIZE = 2097152
 
@@ -87,7 +94,12 @@ def resolve_key(key):
 #-------------------------------------------------------------------------------
 # PRINT                                                                        |
 #-------------------------------------------------------------------------------
-def date_gen():
+def gend():
     date = dt.now()
-    return  f"{date.year}-{date.month}-{date.day}"
+    return  f"{date.day}-{date.month}-{date.year}"
 #-------------------------------------------------------------------------------
+# BROADCAST                                                                    |
+#-------------------------------------------------------------------------------
+def robo_caller():
+    souls = open_toml()
+    return souls['keys']['opa']
