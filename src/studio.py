@@ -1,9 +1,61 @@
+import json
+import os
 import string
-from nltk.corpus import stopwords
+import time
 
+from nltk.corpus import stopwords
+import openai
+
+from src.util import robo_caller
+from src.chisel import writer
+from src.studio import package 
+
+def toy():
+    openai.api_key = robo_caller()
+    response = openai.Completion.create(model="text-davinci-003", prompt="Say this is a test", temperature=0, max_tokens=7)
+    print(response)
+
+
+def summaries(data):
+    openai.api_key = robo_caller()
+    queries = package(data)
+    print(len(queries))
+    desires = []
+    for desire in queries:
+        print('trying')
+        time.sleep(7)
+        try:
+            op = openai.Completion.create(model=desire['model'], prompt=desire['prompt'], temperature=desire['temperature'], max_tokens=desire['max_tokens'], stop=["{}"])
+            desires.append(op)
+        except Exception as e:
+            print(e)
+            break
+    diary(desires)
+    publish(desires)
+    print("Summary write complete.")
+    return
+
+def diary(desires):
+    unrequited_love = json.dumps(
+        desires,
+        indent=2,
+        sort_keys=True,
+        default=str
+    )
+    writer(unrequited_love, "")
+
+def publish(desires):
+    metangels = ""
+    for unfinished in desires:
+        if unfinished['choices'][0].get('text'):
+            metangels +=  unfinished['choices'][0]['text']
+    writer(metangels.strip(), "")
+#-------------------------------------------------------------------------------
+# 
+#-------------------------------------------------------------------------------
 MSG_OVER = 800 
 MSG_UNDER = 30
-ROBO_LIMIT = 9600 
+ROBO_LIMIT = 8400 
 STOP_WORDS = stopwords.words('english') 
 
 def anon(data):
@@ -39,6 +91,7 @@ def chop(ginger):
         else:
             mainload = mainload + ". " + valid
             counter = len(mainload)
+    mainload = mainload[:MSG_OVER]
     loads.append(mainload)
     return loads
 
