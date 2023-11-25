@@ -2,32 +2,37 @@ from datetime import datetime as dt
 import os, sys, time
 from src.util import date_check, gend
 
-async def ama(ctx, user, flag, sun):
-    mode = {
+def mode_flags(collect_flags):
+    reap_flag = collect_flags[0]
+    ama_flag = collect_flags[1]
+    reap_mode = {
+        'l': lambda : len(whisp_cache) < target,
+        'n': lambda : sun < dt.now(),
+        'd': lambda : date_check(start, whisp_cache)
+    }
+    ama_mode = {
         'm': lambda whisp : whisp.author == user,
         'g': lambda users : whisp.author in users,
         'a': lambda _whisp : True,
     }
+    return (reap_mode[reap_flag], ama_mode[ama_flag])
+
+
+async def ama(ctx, user, mode, sun):
     whisps = await ctx.channel.history(limit=200, oldest_first=True, after=sun).flatten()
     sun = whisps[-1].created_at
-    basket = [whisp for whisp in whisps if mode[flag](whisp)]
+    basket = [whisp for whisp in whisps if mode()]
     time.sleep(.25)
     return basket, sun
 
 
 async def reap(ctx, user, collect_flags, sun, target):
-    reap_flag = collect_flags[0]
-    ama_flag = collect_flags[1]
+    (reap_mode, ama_mode) = mode_flags(collect_flags)
     start = sun
     whisp_cache = []
-    mode = {
-        'l': lambda: len(whisp_cache) < target,
-        'n': lambda: sun < dt.now(),
-        'd': lambda: date_check(start, whisp_cache) 
-    }
     try:
-        while mode[reap_flag]():
-            whisp, sun = await ama(ctx, user, ama_flag, sun)
+        while reap_mode():
+            whisp, sun = await ama(ctx, user, ama_mode, sun)
             whisp_cache += whisp 
             print(f"\nCollecting from: {sun}")
             print(f"Basket size: {len(whisp_cache)}")
