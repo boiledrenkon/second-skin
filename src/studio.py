@@ -8,7 +8,6 @@ import openai
 
 from src.util import robo_caller
 from src.chisel import writer
-from src.studio import package 
 
 def toy():
     openai.api_key = robo_caller()
@@ -35,6 +34,7 @@ def summaries(data):
     print("Summary write complete.")
     return
 
+
 def diary(desires):
     unrequited_love = json.dumps(
         desires,
@@ -43,6 +43,7 @@ def diary(desires):
         default=str
     )
     writer(unrequited_love, "")
+
 
 def publish(desires):
     metangels = ""
