@@ -4,9 +4,7 @@ def people(whisp_cache, threshold=0):
         for whisp in whisp_cache
     }
     dictionary = {
-        author: len(messages)
-        for author, messages in group
-        if len(messages) > threshold
+        author: len(messages) for author, messages in group if len(messages) > threshold
     }
     print(list(dictionary.keys()))
     return

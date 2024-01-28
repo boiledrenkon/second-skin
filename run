@@ -5,7 +5,7 @@ import sys, time
 import discord
 from discord.ext import commands
 from src import s, serf, chisel, studio 
-from src.util import resolve_user_token, resolve_input
+from src.util import resolve_user_token, resolve_input, debug
 #----------------------------------------
 # SET UP
 #----------------------------------------
@@ -35,7 +35,7 @@ async def o_o(ctx, target=None):
     tablets = chisel.editor(scroll, editor_key)[0]
     studio.summaries(tablets)
 @client.command()
-async def oO(ctx, target=None):
+async def delete(ctx, target=None):
     collect_flags = "nm"
     start_date = "0311"
     scroll = await collections(
@@ -52,7 +52,6 @@ async def oO(ctx, target=None):
 #----------------------------------------
 @client.event
 async def on_ready():
-    await t()
     print("Online")
 
 

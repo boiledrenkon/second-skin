@@ -3,19 +3,25 @@ import multiprocessing as mp
 import toml as tl
 
 
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # GENERAL                                                                      |
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 def open_toml():
     with open("src/tokens.toml", "r") as masks:
         souls = tl.load(masks)
     return souls
-#-------------------------------------------------------------------------------
+
+
+# -------------------------------------------------------------------------------
 # MAIN                                                                         |
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 def resolve_user_token(name):
     souls = open_toml()
-    return souls['tokens'][name] if souls['tokens'].get(name) else exit('Please use valid username')
+    return (
+        souls["tokens"][name]
+        if souls["tokens"].get(name)
+        else exit("Please use valid username")
+    )
 
 
 def resolve_input(start_date, cache_size):
@@ -23,16 +29,17 @@ def resolve_input(start_date, cache_size):
         YEAR = 2023
         month = start_date[:2]
         day = start_date[2:]
-        start_date = dt(
-            *[int(item) for item in [YEAR, month, day]]
-        )
+        start_date = dt(*[int(item) for item in [YEAR, month, day]])
     if cache_size:
         cache_size = int(cache_size)
     return start_date, cache_size
-#-------------------------------------------------------------------------------
+
+
+# -------------------------------------------------------------------------------
 # SERF/STONE                                                                   |
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 SIZE = 2097152
+
 
 def date_check(sun, whisp_cache):
     if not whisp_cache:
@@ -44,11 +51,8 @@ def date_check(sun, whisp_cache):
 def runny(shakers, pan):
     movers = []
     for grain, salt in enumerate(shakers):
-        form_id = 2**grain 
-        pepper = mp.Process(
-            target=pan,
-            args=(salt, form_id)
-        )
+        form_id = 2**grain
+        pepper = mp.Process(target=pan, args=(salt, form_id))
         movers.append(pepper)
         pepper.start()
     for van in movers:
@@ -58,48 +62,57 @@ def runny(shakers, pan):
 
 def hardboiled(shakers, pan):
     for grain, salt in enumerate(shakers):
-        form_id = 2**grain 
+        form_id = 2**grain
         pan(salt, form_id)
     return
-#-------------------------------------------------------------------------------
+
+
+# -------------------------------------------------------------------------------
 # FORMS                                                                        |
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 def powerset(seq):
     if len(seq) <= 1:
         yield seq
         yield []
     else:
         for item in powerset(seq[1:]):
-            yield [seq[0]]+item
+            yield [seq[0]] + item
             yield item
 
 
 def generate_table():
-    return { 
-        sum(se): se for se in 
-            list(powerset(
-                    [2**r for r in range(0,4)]
-            ))
-    } 
+    return {sum(se): se for se in list(powerset([2**r for r in range(0, 4)]))}
 
 
 def resolve_key(key):
     table = generate_table()
     formats = table.get(key)
     if formats:
-        return formats 
+        return formats
     else:
         print("No matching key found.")
         return []
-#-------------------------------------------------------------------------------
+
+
+# -------------------------------------------------------------------------------
 # PRINT                                                                        |
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 def gend():
     date = dt.now()
-    return  f"{date.day}-{date.month}-{date.year}"
-#-------------------------------------------------------------------------------
+    return f"{date.day}-{date.month}-{date.year}"
+
+
+def debug(func):
+    def inner():
+        print(func.__name__)
+        return
+
+    return inner
+
+
+# -------------------------------------------------------------------------------
 # BROADCAST                                                                    |
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 def robo_caller():
     souls = open_toml()
-    return souls['keys']['opa']
+    return souls["keys"]["opa"]

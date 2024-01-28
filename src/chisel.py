@@ -6,6 +6,7 @@ import sys
 from src.stone import form
 from src.util import SIZE, gend, hardboiled, runny
 
+
 def editor(whisp_cache, form_key):
     eggs = form(form_key, whisp_cache)
     runny(eggs, writer) if sys.getsizeof(eggs) > SIZE else hardboiled(eggs, writer)
@@ -20,7 +21,7 @@ def writer(tons, form_id):
     mode = {
         "summaries": ["", json],
         "logs": [f"-{form_id}", json],
-        "publish": ["-full", txt] 
+        "publish": ["-full", txt],
     }
     gentleman = inspect.stack()[1][3]
     match str(gentleman):
@@ -30,7 +31,7 @@ def writer(tons, form_id):
             caller = "publish"
         case _:
             caller = "logs"
-    nj += caller 
+    nj += caller
     with open(f"{nj}/{gend()}{mode[caller][0]}-{random()}.{mode[caller][1]}", "a") as f:
         f.write(tons)
     return
