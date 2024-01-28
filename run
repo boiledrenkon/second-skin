@@ -10,7 +10,7 @@ from src.util import resolve_user_token, resolve_input
 # SET UP
 #----------------------------------------
 client = commands.Bot(
-    command_prefix="*",
+    command_prefix="%_%",
     self_bot=True,
     help_command=None,
     intents=None
@@ -83,7 +83,7 @@ async def poll(ctx, collect_flags):
 # Last Date | 2023-03-11 
 #----------------------------------------
 @client.command(pass_context=True)
-async def sil(ctx, collect_flags, start_date=None, target=None):
+async def delet(ctx, collect_flags, start_date=None, target=None):
     scroll = await collections(
         ctx,
         client.user,
