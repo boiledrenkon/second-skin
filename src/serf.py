@@ -6,49 +6,49 @@ from src.util import date_check, gend, debug
 
 class Intern:
     def __init__(self, user: Any) -> None:
-        # Static
-        self.user = user
-
-        # Operations
-        self.ctx = None
-        self.ama_mode = None
-        self.reap_mode = None
-        self.start = None
-        self.sun = None
         self.whisp_cache = None
 
+        # Static
+        self._user = user
+
+        # Operations
+        self._ctx = None
+        self._ama_cb = None
+        self._reap_cb = None
+        self._start = None
+        self._sun = None
+
         # Optional
-        self.user_group = None
-        self.target = None
+        self._user_group = None  # TODO
+        self._target = None
 
     def setup(
         self, ctx: Any, collect_flags: str, start: dt.date, target: int | None
     ) -> None:
-        self.ctx = ctx
-        self.start = start
-        self.sun = start
         self.whisp_cache = []
-        (a, r) = self.modes(collect_flags)
-        self.ama_mode = a
-        self.reap_mode = r
 
-        self.target = target
+        self._ctx = ctx
+        self._start = start
+        self._sun = start
+        self._set_modes(collect_flags)
+        self._target = target
 
     def reset(self):
-        self.ama_mode = None
-        self.reap_mode = None
-        self.start = None
-        self.sun = None
         self.whisp_cache = None
-        self.target = None
-        self.user_group = None
 
-    def how_to_div(self, ing: str) -> Callable:
+        self._ama_cb = None
+        self._reap_cb = None
+        self._start = None
+        self._sun = None
+        self._target = None
+        self._user_group = None
+
+    def _how_to_div(self, ing: str) -> Callable:
         def the_user(whisp) -> bool:
-            return whisp.author == self.user
+            return whisp.author == self._user
 
         def a_user(whisp) -> bool:
-            return whisp.author in self.user_group
+            return whisp.author in self._user_group
 
         def any_user(_) -> bool:
             return True
@@ -56,61 +56,60 @@ class Intern:
         breath: dict[str, Callable] = {"m": the_user, "g": a_user, "a": any_user}
         return breath[ing]
 
-    def how_to_reap(self, ing: str) -> Callable:
+    def _how_to_reap(self, ing: str) -> Callable:
         def some() -> bool:
-            return len(self.whisp_cache) < self.target
+            return len(self.whisp_cache) < self._target
 
         def alll() -> bool:
-            return self.sun < dt.now()
+            return self._sun < dt.now()
 
         def day() -> bool:
-            return date_check(self.start, self.whisp_cache)
+            return date_check(self._start, self.whisp_cache)
 
         slic: dict[str, Callable] = {"k": some, "n": alll, "d": day}
         return slic[ing]
 
-    def modes(self, collect_flags: str) -> tuple[Callable, Callable]:
+    def _set_modes(self, collect_flags: str) -> None:
         sea: str = collect_flags[0]
         land: str = collect_flags[1]
-        return (self.how_to_div(sea), self.how_to_reap(land))
+        self._ama_cb = self._how_to_div(sea)
+        self._reap_cb = self._how_to_reap(land)
 
-    async def ama(self) -> list[Any]:
-        whisps = await self.ctx.channel.history(
-            limit=200, oldest_first=True, after=self.sun
+    async def _ama(self) -> list[Any]:
+        whisps = await self._ctx.channel.history(
+            limit=200, oldest_first=True, after=self._sun
         ).flatten()
-        self.sun = whisps[-1].created_at
-        basket = [whisp for whisp in whisps if self.ama_mode(whisp)]
+        self._sun = whisps[-1].created_at
+        basket = [whisp for whisp in whisps if self._ama_cb(whisp)]
         time.sleep(0.25)
         return basket
 
     async def reap(self) -> None:
         try:
-            while self.reap_mode():
-                whisp = await self.ama()
+            while self._reap_cb():
+                whisp = await self._ama()
                 self.whisp_cache += whisp
-                print(f"\nCollecting from: {self.sun}")
+                print(f"\nCollecting from: {self._sun}")
                 print(f"Basket size: {len(self.whisp_cache)}")
         except Exception as e:
             print(e)
 
-
-async def john_alite(whisp_cache: list[Any]):
-    print(
-        f"""
-            I  stawted at {dt.now()}
-            \t-john_alite
-            """
-    )
-    count = 0
-    for whisp in whisp_cache:
-        count += 1
-        print(f"#{count}", end="", flush=True)
-        time.sleep(2)
-        await whisp.delete()
-    print(
-        f"""\n
-            I  finished at {dt.now()}
-            \t-john_alite
-            """
-    )
-    return
+    async def shred():
+        print(
+            f"""
+                I  stawted at {dt.now()}
+                \t-john_alite
+                """
+        )
+        count = 0
+        for whisp in self.whisp_cache:
+            count += 1
+            print(f"#{count}", end="", flush=True)
+            time.sleep(2)
+            await whisp.delete()
+        print(
+            f"""\n
+                I  finished at {dt.now()}
+                \t-john_alite
+                """
+        )

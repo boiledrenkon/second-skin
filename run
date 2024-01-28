@@ -5,8 +5,7 @@ import sys, time
 from typing import Any
 import discord
 from discord.ext import commands
-from src import s, chisel, studio 
-from src.serf import Intern, john_alite
+from src import s, serf, chisel, studio 
 from src.util import resolve_user_token, resolve_input
 #----------------------------------------
 # SET UP
@@ -19,45 +18,43 @@ client = commands.Bot(
 )
 @client.event
 async def on_ready():
-    global COLLECTOR 
-    COLLECTOR = Intern(client.user)
+    global INTERN 
+    INTERN = serf.Intern(client.user)
     print("Online")
 #----------------------------------------
-# Ma
+# 
 #----------------------------------------
 @client.command(pass_context=True)
-async def note(ctx, target=None) -> None:
+async def note(ctx) -> None:
     collect_flags = "na"
     start_date = "09102023"
-    await nott(ctx, collect_flags, start_date, target)
+    await nott(ctx, collect_flags, start_date)
 
 
 @client.command()
 async def nott(ctx, collect_flags ,start_date, target=None) -> None:
     start_date, target = resolve_input(start_date, target)
-    COLLECTOR.setup(ctx, collect_flags, start_date, target)
-    await COLLECTOR.reap()
+    INTERN.setup(ctx, collect_flags, start_date, target)
+    await INTERN.reap()
     # only using data available in all formats currently
-    editor_key = 1
-    chisel.editor(COLLECTOR.whisp_cache, editor_key)[0]
-
-    COLLECTOR.reset()
+    chisel.editor(INTERN.whisp_cache, 1) # editor_key
+    INTERN.reset()
 
 
 @client.command(pass_context=True)
-async def delete(ctx, target=None) -> None:
+async def delete(ctx) -> None:
     collect_flags = "nm"
     start_date = "03112023"
-    await delet(ctx, collect_flags, start_date, target)
+    await delet(ctx, collect_flags, start_date)
 
 
 @client.command()
 async def delet(ctx, collect_flags, start_date=None, target=None) -> None:
     start_date, target = resolve_input(start_date, target)
-    COLLECTOR.setup(ctx, collect_flags, start_date, target)
-    await COLLECTOR.reap()
-    await john_alite(COLLECTOR.whisp_cache)
-    COLLECTOR.reset()
+    INTERN.setup(ctx, collect_flags, start_date, target)
+    await INTERN.reap()
+    await INTERN.shred()
+    INTERN.reset()
 #----------------------------------------
 # DIPPERS 
 #----------------------------------------
@@ -84,14 +81,12 @@ async def diagnostic(ctx, message):
 #----------------------------------------
 # TEST
 #----------------------------------------
-
 #@client.command()
 #async def t():
 #    guild = client.get_guild(873320575643312179)
 #    print(guild)
 #    channels = guild.channels
 #    print(channels)
-
 #----------------------------------------
 # END OF FILE
 #----------------------------------------
