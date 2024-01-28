@@ -5,7 +5,7 @@ from src.util import date_check, gend, debug
 
 
 class C:
-    def __init__(user) -> None:
+    def __init__(self, user: Any) -> None:
         # Static
         self.user = user
 
@@ -21,14 +21,14 @@ class C:
         self.user_group = None
         self.target = None
 
-    def setup(ctx: Any, start: datetime.date, collect_flags: str) -> None:
+    def setup(self, ctx: Any, start: dt.date, collect_flags: str) -> None:
         self.ctx = (ctx,)
         self.start = start
         self.sun = start
         self.whisp_cache = []
         modes(collect_flags)
 
-    def reset():
+    def reset(self):
         self.ama_flag = None
         self.reap_flag = None
         self.start = None
@@ -37,7 +37,7 @@ class C:
         self.target = None
         self.user_group = None
 
-    def how_to_div(ing: str) -> Callable:
+    def how_to_div(self, ing: str) -> Callable:
         def the_user(whisp) -> bool:
             return whisp.author == self.user
 
@@ -50,7 +50,7 @@ class C:
         breath: dict[str, Callable] = {"m": the_user, "g": a_user, "a": any_user}
         return breath[ing]
 
-    def how_to_reap(ing: str) -> Callable:
+    def how_to_reap(self, ing: str) -> Callable:
         def the_user() -> bool:
             return len(self.whisp_cache) < self.target
 
@@ -63,12 +63,12 @@ class C:
         slic: dict[str, Callable] = {"m": the_user, "g": a_user, "a": any_user}
         return slic[ing]
 
-    def mode_flags(collect_flags: str) -> tuple[Callable, Callable]:
+    def mode_flags(self, collect_flags: str) -> tuple[Callable, Callable]:
         sea: str = collect_flags[0]
         land: str = collect_flags[1]
         return (self.how_to_div(sea), self.how_to_reap(land))
 
-    async def ama() -> list[Any]:
+    async def ama(self) -> list[Any]:
         whisps = await self.ctx.channel.history(
             limit=200, oldest_first=True, after=sun
         ).flatten()
@@ -77,7 +77,7 @@ class C:
         time.sleep(0.25)
         return basket
 
-    async def reap() -> None:
+    async def reap(self) -> None:
         try:
             while self.reap_mode():
                 whisp = await ama()
