@@ -81,6 +81,7 @@ def chop(ginger):
     counter = 0
     loads = []
     mainload = ""
+    print(ginger)
     for node in ginger:
         valid = sift(node)
         if not valid:

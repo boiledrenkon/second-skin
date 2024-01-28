@@ -49,6 +49,8 @@ def date_check(sun, whisp_cache):
     if not whisp_cache:
         return True
     last = whisp_cache[-1].created_at
+    print(sun)
+    print(last)
     return int(sun.day) == int(last.day)
 
 
