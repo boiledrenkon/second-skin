@@ -15,7 +15,7 @@ def editor(whisp_cache, form_key):
 
 
 def writer(tons, form_id):
-    nj = "/Users/Shared/programs/cyborg/newsdumps/"
+    nj = "/Users/Shared/programs/cyborg/scrolls/"
     json = "json"
     txt = "txt"
     mode = {
