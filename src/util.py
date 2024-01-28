@@ -1,4 +1,6 @@
 from datetime import datetime as dt
+from inspect import iscoroutinefunction
+from functools import wraps
 import multiprocessing as mp
 import toml as tl
 
@@ -26,10 +28,12 @@ def resolve_user_token(name):
 
 def resolve_input(start_date, cache_size):
     if start_date:
-        YEAR = 2023
         month = start_date[:2]
-        day = start_date[2:]
-        start_date = dt(*[int(item) for item in [YEAR, month, day]])
+        day = start_date[2:4]
+        year = start_date[4:]
+        date = [year, month, day]
+
+        start_date = dt(*[int(item) for item in date])
     if cache_size:
         cache_size = int(cache_size)
     return start_date, cache_size
@@ -103,11 +107,21 @@ def gend():
 
 
 def debug(func):
-    def inner():
-        print(func.__name__)
-        return
+    @wraps(func)
+    def ray(*args, **kwargs):
+        print(f"Calling {func.__name__} with {args}, {kwargs}")
+        result = func(*args, **kwargs)
+        print(f"exiting {func.__name__}")
+        return result
 
-    return inner
+    @wraps(func)
+    async def peat(*args, **kwargs):
+        print(f"Calling {func.__name__} with {args}, {kwargs}")
+        result = await func(*args, **kwargs)
+        print(f"exiting {func.__name__}")
+        return result
+
+    return peat if iscoroutinefunction(func) else ray
 
 
 # -------------------------------------------------------------------------------
