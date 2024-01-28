@@ -5,8 +5,8 @@ import sys, time
 from typing import Any
 import discord
 from discord.ext import commands
-from src import s, serf, chisel, studio 
-from src.serf import C
+from src import s, chisel, studio 
+from src.serf import Intern, john_alite
 from src.util import resolve_user_token, resolve_input
 #----------------------------------------
 # SET UP
@@ -17,12 +17,10 @@ client = commands.Bot(
     help_command=None,
     intents=None
 )
-
-COLLECTOR = None
-
 @client.event
 async def on_ready():
-    COLLECTOR = C(client.user)
+    global COLLECTOR 
+    COLLECTOR = Intern(client.user)
     print("Online")
 #----------------------------------------
 # Ma
@@ -37,31 +35,29 @@ async def note(ctx, target=None) -> None:
 @client.command()
 async def nott(ctx, collect_flags ,start_date, target=None) -> None:
     start_date, target = resolve_input(start_date, target)
-
-    COLLECTOR.setup(ctx, start_date, target)
+    COLLECTOR.setup(ctx, collect_flags, start_date, target)
     await COLLECTOR.reap()
-
     # only using data available in all formats currently
     editor_key = 1
     chisel.editor(COLLECTOR.whisp_cache, editor_key)[0]
 
-    COLLECTOR.teardown()
+    COLLECTOR.reset()
 
 
 @client.command(pass_context=True)
 async def delete(ctx, target=None) -> None:
     collect_flags = "nm"
-    start_date = "09112023"
+    start_date = "03112023"
     await delet(ctx, collect_flags, start_date, target)
 
 
 @client.command()
 async def delet(ctx, collect_flags, start_date=None, target=None) -> None:
     start_date, target = resolve_input(start_date, target)
-    COLLECTOR.setup(ctx, start_date, target)
+    COLLECTOR.setup(ctx, collect_flags, start_date, target)
     await COLLECTOR.reap()
-    await serf.john_alite(COLLECTOR.whisp_cache)
-    COLLECTOR.teardown()
+    await john_alite(COLLECTOR.whisp_cache)
+    COLLECTOR.reset()
 #----------------------------------------
 # DIPPERS 
 #----------------------------------------
@@ -84,25 +80,6 @@ async def diagnostic(ctx, message):
 #async def poll(ctx, collect_flags):
 #    scroll = await serf.reap(ctx, client.user, collect_flags)
 #    s.people(scroll)
-#    return
-#----------------------------------------
-# COLLECTORS
-#----------------------------------------
-# Last Date | 2023-03-11 
-#----------------------------------------
-
-
-#@client.command()
-#async def col(ctx, collect_flags, editor_key, start_date=None, target=None):
-#    scroll = await collections(
-#        ctx,
-#        client.user,
-#        collect_flags,
-#        start_date,
-#        target
-#    )
-#    editor_key = int(editor_key)
-#    chisel.editor(scroll, editor_key)
 #    return
 #----------------------------------------
 # TEST
