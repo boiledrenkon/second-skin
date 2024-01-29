@@ -94,7 +94,7 @@ class Intern:
         except Exception as e:
             print(e)
 
-    async def shred():
+    async def shred(self):
         print(
             f"""
                 I  stawted at {dt.now()}

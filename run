@@ -6,9 +6,14 @@ from typing import Any
 import discord
 from discord.ext import commands
 from src import s, serf, chisel, studio 
-from src.util import resolve_user_token, resolve_input
-#----------------------------------------
-# SET UP
+from src.util import open_toml, resolve_user_token, resolve_input
+
+def location(server):
+    cname = str(server.get('channel'))
+    sname = str(server.get('server'))
+    return f"{cname}::{sname}"
+
+
 #----------------------------------------
 client = commands.Bot(
     command_prefix="™",
@@ -16,23 +21,83 @@ client = commands.Bot(
     help_command=None,
     intents=None
 )
+
+
+def start():
+    global INTERN
+    global CONFIG
+    global SERVER
+
+    INTERN = serf.Intern(client.user)
+    CONFIG = open_toml()
+    SERVER = None
+
+
 @client.event
 async def on_ready():
-    global INTERN 
-    INTERN = serf.Intern(client.user)
+    start()
     print("Online")
+
+
+@client.command()
+async def reset_cfg(_ctx) -> None:
+    global CONFIG
+    CONFIG = open_toml()
+
+
 #----------------------------------------
-# 
+@client.command()
+async def which_channel(ctx) -> None:
+    global SERVER
+    if SERVER is not None:
+        await ctx.send(f"Now connected to: {location(SERVER)}")
+    else:
+        await ctx.send("Not connected currently")
+
+
+@client.command()
+async def set_channel(ctx, server) -> None:
+    global SERVER
+    server: int | None = CONFIG.get("servers", {}).get(server)
+
+    if server is not None:
+        channel_id: int | None = server.get("gen")
+        guild_id: int | None = server.get("id")
+
+        SERVER = {'channel': client.get_channel(channel_id),
+                  'server': client.get_guild(guild_id)}
+        await ctx.send(f"Now connected to: {location(SERVER)}")
+    else:
+        await ctx.send("Channel not found")
+
+
+@client.command()
+async def reset_channel(ctx) -> None:
+    global SERVER
+    if SERVER is not None:
+        await ctx.send(f"Disconnecting from: {location(SERVER)}")
+    SERVER = None
+
+@client.command()
+async def sendto(ctx, *args) -> None:
+    global SERVER
+    if SERVER is not None:
+        channel = SERVER.get('channel')
+        message = " ".join(args)
+        await channel.send(message)
+    else:
+        await ctx.send("Not connected currently")
+
 #----------------------------------------
 @client.command(pass_context=True)
 async def note(ctx) -> None:
-    collect_flags = "na"
+    collect_flags = "an"
     start_date = "09102023"
     await nott(ctx, collect_flags, start_date)
 
 
 @client.command()
-async def nott(ctx, collect_flags ,start_date, target=None) -> None:
+async def nott(ctx, collect_flags, start_date, target=None) -> None:
     start_date, target = resolve_input(start_date, target)
     INTERN.setup(ctx, collect_flags, start_date, target)
     await INTERN.reap()
@@ -43,8 +108,8 @@ async def nott(ctx, collect_flags ,start_date, target=None) -> None:
 
 @client.command(pass_context=True)
 async def delete(ctx) -> None:
-    collect_flags = "nm"
-    start_date = "03112023"
+    collect_flags = "mn"
+    start_date = "01282024"
     await delet(ctx, collect_flags, start_date)
 
 
@@ -55,8 +120,7 @@ async def delet(ctx, collect_flags, start_date=None, target=None) -> None:
     await INTERN.reap()
     await INTERN.shred()
     INTERN.reset()
-#----------------------------------------
-# DIPPERS 
+
 #----------------------------------------
 @client.command()
 async def repeat(ctx, message):

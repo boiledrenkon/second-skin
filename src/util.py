@@ -6,17 +6,43 @@ import toml as tl
 
 
 # -------------------------------------------------------------------------------
-# GENERAL                                                                      |
+# PRINT                                                                        |
 # -------------------------------------------------------------------------------
+def gend():
+    date = dt.now()
+    return f"{date.day}-{date.month}-{date.year}"
+
+
+def debug(func):
+    @wraps(func)
+    def ray(*args, **kwargs):
+        print(f"Calling {func.__name__} with {args}, {kwargs}")
+        result = func(*args, **kwargs)
+        print(f"exiting {func.__name__}")
+        return result
+
+    @wraps(func)
+    async def peat(*args, **kwargs):
+        print(f"Calling {func.__name__} with {args}, {kwargs}")
+        result = await func(*args, **kwargs)
+        print(f"exiting {func.__name__}")
+        return result
+
+    return peat if iscoroutinefunction(func) else ray
+
+
+# ------------------------------------------------------------------------------
+# GENERAL                                                                      |
+# ------------------------------------------------------------------------------
 def open_toml():
     with open("src/tokens.toml", "r") as masks:
         souls = tl.load(masks)
     return souls
 
 
-# -------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # MAIN                                                                         |
-# -------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def resolve_user_token(name):
     souls = open_toml()
     return (
@@ -39,9 +65,9 @@ def resolve_input(start_date, cache_size):
     return start_date, cache_size
 
 
-# -------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # SERF/STONE                                                                   |
-# -------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 SIZE = 2097152
 
 
@@ -73,9 +99,9 @@ def hardboiled(shakers, pan):
     return
 
 
-# -------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # FORMS                                                                        |
-# -------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def powerset(seq):
     if len(seq) <= 1:
         yield seq
@@ -100,35 +126,9 @@ def resolve_key(key):
         return []
 
 
-# -------------------------------------------------------------------------------
-# PRINT                                                                        |
-# -------------------------------------------------------------------------------
-def gend():
-    date = dt.now()
-    return f"{date.day}-{date.month}-{date.year}"
-
-
-def debug(func):
-    @wraps(func)
-    def ray(*args, **kwargs):
-        print(f"Calling {func.__name__} with {args}, {kwargs}")
-        result = func(*args, **kwargs)
-        print(f"exiting {func.__name__}")
-        return result
-
-    @wraps(func)
-    async def peat(*args, **kwargs):
-        print(f"Calling {func.__name__} with {args}, {kwargs}")
-        result = await func(*args, **kwargs)
-        print(f"exiting {func.__name__}")
-        return result
-
-    return peat if iscoroutinefunction(func) else ray
-
-
-# -------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # BROADCAST                                                                    |
-# -------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def robo_caller():
     souls = open_toml()
     return souls["keys"]["opa"]
