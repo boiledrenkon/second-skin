@@ -17,10 +17,10 @@
 - 8: {'user/place/date/msg_id: full_msg_obj}
 
 ## Examples:
-™delete mn 01212024<br>
+¡delete mn 01212024<br>
 delete all my messages from 21 Jan 2024 til no
 
-™note ad 01212024<br>
+¡note ad 01212024<br>
 starting from 21 Jan 2024 write all users messages in simple list
 <br>
 

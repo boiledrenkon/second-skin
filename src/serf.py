@@ -1,6 +1,6 @@
 from datetime import datetime as dt
 import os, sys, time
-from typing import Any, Callable
+from typing import Optional, Any, Callable
 from src.util import date_check, gend, debug
 
 
@@ -12,7 +12,7 @@ class Intern:
         self._user = user
 
         # Operations
-        self._ctx = None
+        self._channe = None
         self._ama_cb = None
         self._reap_cb = None
         self._start = None
@@ -23,11 +23,11 @@ class Intern:
         self._target = None
 
     def setup(
-        self, ctx: Any, collect_flags: str, start: dt.date, target: int | None
+        self, collect_flags: str, channel: Any, start: dt.date, target: int | None
     ) -> None:
         self.whisp_cache = []
 
-        self._ctx = ctx
+        self._channel = channel
         self._start = start
         self._sun = start
         self._set_modes(collect_flags)
@@ -76,7 +76,7 @@ class Intern:
         self._reap_cb = self._how_to_reap(land)
 
     async def _ama(self) -> list[Any]:
-        whisps = await self._ctx.channel.history(
+        whisps = await self._channel.history(
             limit=200, oldest_first=True, after=self._sun
         ).flatten()
         self._sun = whisps[-1].created_at

@@ -5,8 +5,13 @@ import sys, time
 from typing import Any
 import discord
 from discord.ext import commands
-from src import s, serf, chisel, studio 
+from src import s, serf, chisel, studio
+from src.stalker import Stalker
 from src.util import open_toml, resolve_user_token, resolve_input
+
+
+name = lambda user: f"{user.display_name}"
+
 
 def location(server):
     cname = str(server.get('channel'))
@@ -16,7 +21,7 @@ def location(server):
 
 #----------------------------------------
 client = commands.Bot(
-    command_prefix="™",
+    command_prefix="¡",
     self_bot=True,
     help_command=None,
     intents=None
@@ -27,10 +32,12 @@ def start():
     global INTERN
     global CONFIG
     global SERVER
+    global STALKER
 
     INTERN = serf.Intern(client.user)
-    CONFIG = open_toml()
+    CONFIG = open_toml("servers")
     SERVER = None
+    STALKER = None
 
 
 @client.event
@@ -38,21 +45,47 @@ async def on_ready():
     start()
     print("Online")
 
+#@client.event
+#async def on_reaction_add(reaction, user):
+#    message = reaction.message
+#    channel = message.channel
+#    if message.author == client.user:
+#        await channel.send(f"thank you {user} for reacting to my post. hope to see you soon!")
+
+@client.event
+async def on_raw_reaction_add(raw_reaction):
+    global STALKER
+    global SERVER
+    if STALKER is not None and SERVER is not None:
+        message: str | None = await STALKER.on_raw_react(raw_reaction, client)
+        if message is not None:
+             await SERVER.get("channel").send(message)
+
 
 @client.command()
 async def reset_cfg(_ctx) -> None:
     global CONFIG
-    CONFIG = open_toml()
+    CONFIG = open_toml("servers")
+
+
+@client.command()
+async def where(ctx) -> None:
+    _ctx = str(ctx)
+    print(dir(ctx))
+    #await ctx.send(_ctx)
 
 
 #----------------------------------------
 @client.command()
-async def which_channel(ctx) -> None:
+async def which_channel(ctx, flag=None) -> None:
     global SERVER
     if SERVER is not None:
         await ctx.send(f"Now connected to: {location(SERVER)}")
     else:
         await ctx.send("Not connected currently")
+        if flag == "l":
+            channels = "\n".join(f"{s}" for s in CONFIG.get("servers"))
+            await ctx.send(f"list: \n{channels}")
 
 
 @client.command()
@@ -78,6 +111,7 @@ async def reset_channel(ctx) -> None:
         await ctx.send(f"Disconnecting from: {location(SERVER)}")
     SERVER = None
 
+
 @client.command()
 async def sendto(ctx, *args) -> None:
     global SERVER
@@ -87,6 +121,44 @@ async def sendto(ctx, *args) -> None:
         await channel.send(message)
     else:
         await ctx.send("Not connected currently")
+
+
+#----------------------------------------
+@client.command()
+async def which_user(ctx) -> None:
+    global STALKER
+    if STALKER is not None:
+        await ctx.send(f"Now stalking {name(STALKER.user)}")
+    else:
+        await ctx.send("No target currently")
+
+
+@client.command()
+async def set_user(ctx, message: str) -> None:
+    global STALKER
+    try:
+        user_id = int(message)
+    except:
+        await ctx.send(f"Poorly formatted user_id: {message}")
+        return
+
+    user: Any = await client.fetch_user(user_id)
+    u_n = name(user)
+
+    if STALKER is not None:
+        await ctx.send(f"Switching target from {name(STALKER.user)} to {u_n}")
+    else:
+        await ctx.send(f"Target set to {u_n}")
+    STALKER = Stalker(user)
+
+
+@client.command()
+async def reset_user(ctx) -> None:
+    global STALKER
+    if STALKER is not None:
+        await ctx.send(f"Saying goodbye to: {name(STALKER.user)}")
+    STALKER = None
+
 
 #----------------------------------------
 @client.command(pass_context=True)
@@ -99,7 +171,8 @@ async def note(ctx) -> None:
 @client.command()
 async def nott(ctx, collect_flags, start_date, target=None) -> None:
     start_date, target = resolve_input(start_date, target)
-    INTERN.setup(ctx, collect_flags, start_date, target)
+    channel = SERVER.get("channel") if SERVER.get("channel") is not None else ctx.channel
+    INTERN.setup(collect_flags,channel, start_date, target)
     await INTERN.reap()
     # only using data available in all formats currently
     chisel.editor(INTERN.whisp_cache, 1) # editor_key
@@ -116,10 +189,12 @@ async def delete(ctx) -> None:
 @client.command()
 async def delet(ctx, collect_flags, start_date=None, target=None) -> None:
     start_date, target = resolve_input(start_date, target)
-    INTERN.setup(ctx, collect_flags, start_date, target)
+    channel = SERVER.get("channel") if SERVER.get("channel") is not None else ctx.channel
+    INTERN.setup(collect_flags,channel, start_date, target)
     await INTERN.reap()
     await INTERN.shred()
     INTERN.reset()
+
 
 #----------------------------------------
 @client.command()

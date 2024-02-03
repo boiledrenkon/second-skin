@@ -34,8 +34,8 @@ def debug(func):
 # ------------------------------------------------------------------------------
 # GENERAL                                                                      |
 # ------------------------------------------------------------------------------
-def open_toml():
-    with open("src/tokens.toml", "r") as masks:
+def open_toml(file: str):
+    with open(f"src/{file}.toml", "r") as masks:
         souls = tl.load(masks)
     return souls
 
@@ -44,7 +44,7 @@ def open_toml():
 # MAIN                                                                         |
 # ------------------------------------------------------------------------------
 def resolve_user_token(name):
-    souls = open_toml()
+    souls = open_toml("tokens")
     return (
         souls["tokens"][name]
         if souls["tokens"].get(name)
@@ -130,5 +130,5 @@ def resolve_key(key):
 # BROADCAST                                                                    |
 # ------------------------------------------------------------------------------
 def robo_caller():
-    souls = open_toml()
+    souls = open_toml("tokens")
     return souls["keys"]["opa"]
