@@ -45,6 +45,15 @@ async def on_ready():
     start()
     print("Online")
 
+@client.event
+async def on_message_add(message):
+    global STALKER
+    if STALKER is not None:
+        for message in STALKER.on_messages(message):
+            if len(message) is not 0:
+                studio.summaries(message)
+            break
+
 #@client.event
 #async def on_reaction_add(reaction, user):
 #    message = reaction.message
@@ -190,7 +199,7 @@ async def delete(ctx) -> None:
 async def delet(ctx, collect_flags, start_date=None, target=None) -> None:
     start_date, target = resolve_input(start_date, target)
     channel = SERVER.get("channel") if SERVER.get("channel") is not None else ctx.channel
-    INTERN.setup(collect_flags,channel, start_date, target)
+    INTERN.setup(collect_flags, channel, start_date, target)
     await INTERN.reap()
     await INTERN.shred()
     INTERN.reset()

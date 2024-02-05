@@ -2,6 +2,7 @@ import json
 import os
 import string
 import time
+from typing import Any
 
 from nltk.corpus import stopwords
 import openai
@@ -15,7 +16,7 @@ def toy():
     print(response)
 
 
-def summaries(data):
+def summaries(data: list[Any]) -> None:
     openai.api_key = robo_caller()
     queries = package(data)
     print(len(queries))
@@ -32,20 +33,19 @@ def summaries(data):
     diary(desires)
     publish(desires)
     print("Summary write complete.")
-    return
 
 
-def diary(desires):
-    unrequited_love = json.dumps(
+def diary(desires) -> None:
+    inactions = json.dumps(
         desires,
         indent=2,
         sort_keys=True,
         default=str
     )
-    writer(unrequited_love, "")
+    writer(inactions, "")
 
 
-def publish(desires):
+def publish(desires) -> None:
     metangels = ""
     for unfinished in desires:
         if unfinished['choices'][0].get('text'):
@@ -54,10 +54,10 @@ def publish(desires):
 #-------------------------------------------------------------------------------
 # 
 #-------------------------------------------------------------------------------
-MSG_OVER = 800 
+MSG_OVER = 800
 MSG_UNDER = 30
-ROBO_LIMIT = 8400 
-STOP_WORDS = stopwords.words('english') 
+ROBO_LIMIT = 8400
+STOP_WORDS = stopwords.words('english')
 
 def anon(data):
     if type(data) == dict:
@@ -88,7 +88,7 @@ def chop(ginger):
             continue
         if counter >= ROBO_LIMIT:
             loads.append(mainload)
-            mainload = valid 
+            mainload = valid
             counter = len(mainload)
         else:
             mainload = mainload + ". " + valid
@@ -97,16 +97,19 @@ def chop(ginger):
     loads.append(mainload)
     return loads
 
+
 PROMPTS = {
     'summarize': 'Given the following  sequence of messages with usernames delimited by an @ symbol,  summarize the discussion and add some context to any popular topics: ',
     'story': 'Given the following sequence of messages, write a short story about the themes and actions discussed in the style of Ryunosuke Akutagawa: ',
 }
-def package(data):
+
+
+def package(data, prompt: str = "summmarize") -> list[dict[str, Any]]:
     data = anon(data)
     lunch_tray = [{
         'model': 'text-davinci-003',
         'max_tokens': 1024,
-        'prompt': PROMPTS['summarize'] + ff + "{}", 
-        'temperature': 1.25 
+        'prompt': PROMPTS[prompt] + ff + "{}",
+        'temperature': 1.25
     } for ff in chop(data)]
     return lunch_tray

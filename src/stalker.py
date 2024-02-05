@@ -1,7 +1,7 @@
-from typing import Any
+from typing import Any, Generator
 
 MESSAGE_MIN = 6
-SUMMARY_COUNT = 200
+SUMMARY_COUNT = 50
 
 
 class Guild:
@@ -44,18 +44,20 @@ class Stalker:
     def _add_message(self, guild, message):
         added: bool = guild.add_messsage(message)
         count: int = guild.messages_len
-        if added and count >= SUMMARY_COUNT:
+
+        messages: str = ""
+        if added and count == SUMMARY_COUNT:
             messages: str = " ".join(guild.messages)
             guild.empty_messages()
-            return
+        return messages
 
-    def on_message(self, message) -> None:
+    def on_message(self, message) -> tuple[bool, list[Any], Guild | None]:
         if not self.user == message.author:
             return
 
         guild_id: str = message.guild.id
         guild: Guild = self._get_guild(guild_id)
-        self._add_message(guild, message)
+        messages = self._add_message(guild, message)
 
     def on_react(self, reaction, user) -> str:
         message = reaction.message
