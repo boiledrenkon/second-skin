@@ -6,7 +6,7 @@ from typing import Any
 
 from nltk.corpus import stopwords
 
-from src.util import robo_caller
+from src.util import BASE_DIR, robo_caller
 from src.llm import complete
 from src.chisel import writer
 
@@ -123,7 +123,7 @@ def package(data, prompt: str = "summarize") -> list[dict[str, Any]]:
 # The text reply goes through the shared complete() wrapper (role "reply"), so
 # the model/provider is set in models.toml. The TTS step below is a separate
 # concern (audio, not an LLM) and keeps its own voice/model settings.
-AUDIO_DIR = "/Users/Shared/programs/second-skin/outputs/audio/UncleJoe"
+AUDIO_DIR = os.path.join(BASE_DIR, "outputs", "audio", "UncleJoe")
 TTS_VOICE = "Uncle Joe"
 TTS_MODEL = "eleven_multilingual_v2"
 _audio_count = 0

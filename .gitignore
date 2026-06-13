@@ -34,5 +34,7 @@ htmlcov/
 src/tokens.toml
 # Scraped message exports
 newsdumps/
+# Generated JSON/text archives and summaries (src/chisel.py writer)
+scrolls/
 # Generated TTS audio / text replies
 outputs/
