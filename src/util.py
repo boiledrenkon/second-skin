@@ -131,4 +131,4 @@ def resolve_key(key):
 # ------------------------------------------------------------------------------
 def robo_caller():
     souls = open_toml("tokens")
-    return souls["keys"]["opa"]
+    return souls["keys"]

@@ -11,13 +11,13 @@ from src.util import robo_caller
 from src.chisel import writer
 
 def toy():
-    openai.api_key = robo_caller()
+    openai.api_key = robo_caller()["opa"]
     response = openai.Completion.create(model="text-davinci-003", prompt="Say this is a test", temperature=0, max_tokens=7)
     print(response)
 
 
 def summaries(data: list[Any]) -> None:
-    openai.api_key = robo_caller()
+    openai.api_key = robo_caller()["opa"]
     queries = package(data)
     print(len(queries))
     desires = []
@@ -113,3 +113,61 @@ def package(data, prompt: str = "summmarize") -> list[dict[str, Any]]:
         'temperature': 1.25
     } for ff in chop(data)]
     return lunch_tray
+
+
+# -------------------------------------------------------------------------------
+# AUDIO REPLY  (GPT-4o text -> ElevenLabs TTS)
+# -------------------------------------------------------------------------------
+# Triggered when you react 👴 to a message: compose a reply with GPT-4o, speak it
+# in the "Uncle Joe" voice, and return the path to the saved mp3.
+#
+# NOTE: this path uses the openai>=1.0 client (OpenAI()), which is incompatible
+# with the openai.Completion calls in summaries()/toy() above (those need
+# openai<1.0). Imports are kept lazy so this module still loads either way; only
+# the function you actually call needs its dependency present.
+AUDIO_DIR = "/Users/Shared/programs/second-skin/outputs/audio/UncleJoe"
+_audio_count = 0
+
+
+def _reply_text(user: str, message: str) -> str:
+    from openai import OpenAI
+
+    client = OpenAI(api_key=robo_caller()["opa"])
+    prompt = (
+        f"Pretend you're in a deep conversation with {user}, on an online forum. "
+        "You're secretly in love with them and you don't want to say it outloud. "
+        "You show that you care by enganging with their interests. "
+        f"Respond to their message: {message}" + "{}"
+    )
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.8,
+        max_tokens=1200,
+        stop="{}",
+    )
+    return response.choices[0].message.content
+
+
+def _speak(text: str, num: int) -> str:
+    from elevenlabs import get_api_key, set_api_key, generate, save
+
+    if get_api_key() is None:
+        set_api_key(robo_caller()["eln"])
+    audio = generate(
+        text=f"{text}. and fuck you by the way!",
+        voice="Uncle Joe",
+        model="eleven_multilingual_v2",
+    )
+    os.makedirs(AUDIO_DIR, exist_ok=True)
+    path = f"{AUDIO_DIR}/{num}.mp3"
+    save(audio, path)
+    return path
+
+
+def go(user: str, message: str) -> str:
+    global _audio_count
+    text = _reply_text(user, message)
+    path = _speak(text, _audio_count)
+    _audio_count += 1
+    return path

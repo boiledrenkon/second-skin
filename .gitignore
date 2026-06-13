@@ -34,3 +34,5 @@ htmlcov/
 src/tokens.toml
 # Scraped message exports
 newsdumps/
+# Generated TTS audio / text replies
+outputs/
