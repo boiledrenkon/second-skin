@@ -5,19 +5,16 @@ import time
 from typing import Any
 
 from nltk.corpus import stopwords
-import openai
 
 from src.util import robo_caller
+from src.llm import complete
 from src.chisel import writer
 
 def toy():
-    openai.api_key = robo_caller()["opa"]
-    response = openai.Completion.create(model="text-davinci-003", prompt="Say this is a test", temperature=0, max_tokens=7)
-    print(response)
+    print(complete(prompt="Say this is a test", role="summarize", max_tokens=8))
 
 
 def summaries(data: list[Any]) -> None:
-    openai.api_key = robo_caller()["opa"]
     queries = package(data)
     print(len(queries))
     desires = []
@@ -25,8 +22,14 @@ def summaries(data: list[Any]) -> None:
         print('trying')
         time.sleep(7)
         try:
-            op = openai.Completion.create(model=desire['model'], prompt=desire['prompt'], temperature=desire['temperature'], max_tokens=desire['max_tokens'], stop=["{}"])
-            desires.append(op)
+            text = complete(
+                prompt=desire['prompt'],
+                role="summarize",
+                temperature=desire['temperature'],
+                max_tokens=desire['max_tokens'],
+                stop=["{}"],
+            )
+            desires.append(text)
         except Exception as e:
             print(e)
             break
@@ -46,10 +49,7 @@ def diary(desires) -> None:
 
 
 def publish(desires) -> None:
-    metangels = ""
-    for unfinished in desires:
-        if unfinished['choices'][0].get('text'):
-            metangels +=  unfinished['choices'][0]['text']
+    metangels = "\n\n".join(text for text in desires if text)
     writer(metangels.strip(), "")
 #-------------------------------------------------------------------------------
 # 
@@ -104,10 +104,9 @@ PROMPTS = {
 }
 
 
-def package(data, prompt: str = "summmarize") -> list[dict[str, Any]]:
+def package(data, prompt: str = "summarize") -> list[dict[str, Any]]:
     data = anon(data)
     lunch_tray = [{
-        'model': 'text-davinci-003',
         'max_tokens': 1024,
         'prompt': PROMPTS[prompt] + ff + "{}",
         'temperature': 1.25
@@ -121,32 +120,29 @@ def package(data, prompt: str = "summmarize") -> list[dict[str, Any]]:
 # Triggered when you react 👴 to a message: compose a reply with GPT-4o, speak it
 # in the "Uncle Joe" voice, and return the path to the saved mp3.
 #
-# NOTE: this path uses the openai>=1.0 client (OpenAI()), which is incompatible
-# with the openai.Completion calls in summaries()/toy() above (those need
-# openai<1.0). Imports are kept lazy so this module still loads either way; only
-# the function you actually call needs its dependency present.
+# The text reply goes through the shared complete() wrapper (role "reply"), so
+# the model/provider is set in models.toml. The TTS step below is a separate
+# concern (audio, not an LLM) and keeps its own voice/model settings.
 AUDIO_DIR = "/Users/Shared/programs/second-skin/outputs/audio/UncleJoe"
+TTS_VOICE = "Uncle Joe"
+TTS_MODEL = "eleven_multilingual_v2"
 _audio_count = 0
 
 
 def _reply_text(user: str, message: str) -> str:
-    from openai import OpenAI
-
-    client = OpenAI(api_key=robo_caller()["opa"])
     prompt = (
         f"Pretend you're in a deep conversation with {user}, on an online forum. "
         "You're secretly in love with them and you don't want to say it outloud. "
         "You show that you care by enganging with their interests. "
         f"Respond to their message: {message}" + "{}"
     )
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}],
+    return complete(
+        prompt=prompt,
+        role="reply",
         temperature=0.8,
         max_tokens=1200,
         stop="{}",
     )
-    return response.choices[0].message.content
 
 
 def _speak(text: str, num: int) -> str:
@@ -156,8 +152,8 @@ def _speak(text: str, num: int) -> str:
         set_api_key(robo_caller()["eln"])
     audio = generate(
         text=f"{text}. and fuck you by the way!",
-        voice="Uncle Joe",
-        model="eleven_multilingual_v2",
+        voice=TTS_VOICE,
+        model=TTS_MODEL,
     )
     os.makedirs(AUDIO_DIR, exist_ok=True)
     path = f"{AUDIO_DIR}/{num}.mp3"

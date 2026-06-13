@@ -1,0 +1,13 @@
+# Model selection — committed, no secrets (keys live in src/tokens.toml [keys]).
+#
+# Each entry maps a logical ROLE to a litellm "provider/model" string. Change a
+# provider by editing one line; the code never names a model directly.
+#   https://docs.litellm.ai/docs/providers
+#
+# Examples:
+#   summarize = "anthropic/claude-sonnet-4-20250514"
+#   summarize = "ollama/llama3"          # local, no API key needed
+#   reply     = "openrouter/meta-llama/llama-3.1-70b-instruct"
+
+summarize = "openai/gpt-4o-mini"
+reply = "openai/gpt-4o"
