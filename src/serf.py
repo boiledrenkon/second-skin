@@ -75,7 +75,7 @@ class Intern:
         self._ama_cb = self._how_to_div(sea)
         self._reap_cb = self._how_to_reap(land)
 
-    async def _ama(self) -> list[Any]:
+    async def ama(self) -> list[Any]:
         whisps = await self._channel.history(
             limit=200, oldest_first=True, after=self._sun
         ).flatten()
