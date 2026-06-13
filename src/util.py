@@ -37,7 +37,7 @@ def date_check(sun, whisp_cache):
 def runny(shakers, pan):
     movers = []
     for grain, salt in enumerate(shakers):
-        form_id = 2**grain 
+        form_id = 2**grain
         pepper = mp.Process(
             target=pan,
             args=(salt, form_id)
@@ -51,7 +51,7 @@ def runny(shakers, pan):
 
 def hardboiled(shakers, pan):
     for grain, salt in enumerate(shakers):
-        form_id = 2**grain 
+        form_id = 2**grain
         pan(salt, form_id)
     return
 #-------------------------------------------------------------------------------
@@ -68,19 +68,19 @@ def powerset(seq):
 
 
 def generate_table():
-    return { 
-        sum(se): se for se in 
+    return {
+        sum(se): se for se in
             list(powerset(
                     [2**r for r in range(0,4)]
             ))
-    } 
+    }
 
 
 def resolve_key(key):
     table = generate_table()
     formats = table.get(key)
     if formats:
-        return formats 
+        return formats
     else:
         print("No matching key found.")
         return []

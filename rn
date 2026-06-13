@@ -1,0 +1,107 @@
+#!/opt/homebrew/bin/python3.10
+import sys
+from typing import Optional, Tuple, Any
+import asyncio
+import discord
+from discord.ext import commands
+from src import s, serf, stone 
+from src.util import resolve_user_token, resolve_input
+
+class MessageCollector(commands.Bot):
+    def __init__(self):
+        super().__init__(
+            command_prefix="$",
+            self_bot=True,
+            help_command=None,
+            intents=None
+        )
+        self.setup_commands()
+
+    async def on_ready(self):
+        print("Online")
+
+    def setup_commands(self):
+        # Register all commands
+        self.add_command(commands.Command(self.repeat, name='repeat'))
+        self.add_command(commands.Command(self.diagnostic, name='diagnostic'))
+        self.add_command(commands.Command(self.poll, name='poll'))
+        self.add_command(commands.Command(self.sil, name='sil'))
+        self.add_command(commands.Command(self.col, name='col'))
+
+    async def repeat(self, ctx: commands.Context, message: str):
+        """Repeatedly send a message with delay."""
+        try:
+            while True:
+                await ctx.send(message)
+                await asyncio.sleep(0.25)
+        except Exception as e:
+            print(f"Error in repeat command: {e}")
+
+    async def diagnostic(self, ctx: commands.Context, message: str):
+        """Diagnostic command for debugging."""
+        print(dir(ctx))
+        print(message)
+
+    async def poll(self, ctx: commands.Context, collect_flags: str):
+        """Poll messages and analyze user participation."""
+        try:
+            scroll = await serf.reap(ctx, self.user, collect_flags, None, None)
+            s.people(scroll)
+        except Exception as e:
+            print(f"Error in poll command: {e}")
+
+    async def sil(self, 
+                 ctx: commands.Context, 
+                 collect_flags: str, 
+                 start_date: Optional[str] = None, 
+                 target: Optional[str] = None):
+        """Collect and delete messages."""
+        try:
+            scroll = await self._collect_messages(ctx, collect_flags, start_date, target)
+            await serf.john_alite(ctx, scroll)
+        except Exception as e:
+            print(f"Error in sil command: {e}")
+
+    async def col(self, 
+                 ctx: commands.Context, 
+                 collect_flags: str, 
+                 editor_key: str, 
+                 start_date: Optional[str] = None, 
+                 target: Optional[str] = None):
+        """Collect and process messages."""
+        try:
+            scroll = await self._collect_messages(ctx, collect_flags, start_date, target)
+            stone.editor(scroll, int(editor_key))
+        except Exception as e:
+            print(f"Error in col command: {e}")
+
+    async def _collect_messages(self, 
+                              ctx: commands.Context, 
+                              collect_flags: str, 
+                              start_date: Optional[str], 
+                              target: Optional[str]) -> Any:
+        """Helper method for message collection."""
+        start_date, target = resolve_input(start_date, target)
+        return await serf.reap(
+            ctx,
+            self.user,
+            collect_flags,
+            start_date,
+            target
+        )
+
+def main():
+    """Main entry point for the bot."""
+    if len(sys.argv) < 2:
+        exit('Please invoke with username')
+    
+    try:
+        token = resolve_user_token(sys.argv[1])
+        client = MessageCollector()
+        client.run(token, bot=False)
+    except Exception as e:
+        print(f"Error starting bot: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

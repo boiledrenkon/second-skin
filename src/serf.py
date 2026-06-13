@@ -23,12 +23,12 @@ async def reap(ctx, user, collect_flags, sun, target):
     mode = {
         'l': lambda: len(whisp_cache) < target,
         'n': lambda: sun < dt.now(),
-        'd': lambda: date_check(start, whisp_cache) 
+        'd': lambda: date_check(start, whisp_cache)
     }
     try:
         while mode[reap_flag]():
             whisp, sun = await ama(ctx, user, ama_flag, sun)
-            whisp_cache += whisp 
+            whisp_cache += whisp
             print(f"\nCollecting from: {sun}")
             print(f"Basket size: {len(whisp_cache)}")
     except Exception as e:

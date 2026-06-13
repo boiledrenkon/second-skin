@@ -6,7 +6,7 @@ def editor(whisp_cache, form_key):
     eggs = form(form_key, whisp_cache)
     runny(eggs, writer) if sys.getsizeof(eggs) > SIZE else hardboiled(eggs, writer)
     print("Write complete.")
-    return 
+    return
 
 
 def writer(tons, form_id):
