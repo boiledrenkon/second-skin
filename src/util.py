@@ -2,7 +2,14 @@ from datetime import datetime as dt
 from inspect import iscoroutinefunction
 from functools import wraps
 import multiprocessing as mp
+import os
 import toml as tl
+
+
+# Repo root, resolved relative to this file (src/util.py), so paths work no
+# matter which directory ./run is launched from.
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SRC_DIR = os.path.join(BASE_DIR, "src")
 
 
 # -------------------------------------------------------------------------------
@@ -35,7 +42,7 @@ def debug(func):
 # GENERAL                                                                      |
 # ------------------------------------------------------------------------------
 def open_toml(file: str):
-    with open(f"src/{file}.toml", "r") as masks:
+    with open(os.path.join(SRC_DIR, f"{file}.toml"), "r") as masks:
         souls = tl.load(masks)
     return souls
 
@@ -131,4 +138,4 @@ def resolve_key(key):
 # ------------------------------------------------------------------------------
 def robo_caller():
     souls = open_toml("tokens")
-    return souls["keys"]["opa"]
+    return souls["keys"]

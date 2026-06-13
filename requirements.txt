@@ -1,0 +1,24 @@
+# discord.py 1.7.3 is the last version with self-bot support (self_bot=True,
+# client.run(token, bot=False)). Do not bump to 2.x.
+discord.py==1.7.3
+
+# discord.py 1.7.3 pins aiohttp<3.8. This is the binding constraint for the
+# whole environment, so it is stated explicitly here.
+aiohttp<3.8
+
+# Provider-agnostic LLM calls — see src/llm.py and src/models.toml.
+# Pinned: litellm>=1.74 hard-imports aiohttp>=3.10 at module load, which is
+# incompatible with discord.py 1.7.3's aiohttp<3.8. 1.60.0 is the newest
+# release that still imports (and runs sync completions via httpx) under the
+# old aiohttp. The real fix is migrating off discord.py 1.7.3 (see README/notes)
+# to discord.py-self, which would lift this ceiling.
+litellm==1.60.0
+
+# Text-to-speech for the 👴 reaction reply (src/studio.py).
+elevenlabs
+
+# Stopword filtering for summary prompts (src/studio.py).
+nltk
+
+# Config files (tokens.toml / servers.toml / models.toml).
+toml

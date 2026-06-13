@@ -1,10 +1,11 @@
 import inspect
 import json
+import os
 from random import random
 import sys
 
 from src.stone import form
-from src.util import SIZE, gend, hardboiled, runny
+from src.util import BASE_DIR, SIZE, gend, hardboiled, runny
 
 
 def editor(whisp_cache, form_key):
@@ -15,7 +16,6 @@ def editor(whisp_cache, form_key):
 
 
 def writer(tons, form_id):
-    nj = "/Users/Shared/programs/cyborg/scrolls/"
     json = "json"
     txt = "txt"
     mode = {
@@ -31,7 +31,8 @@ def writer(tons, form_id):
             caller = "publish"
         case _:
             caller = "logs"
-    nj += caller
+    nj = os.path.join(BASE_DIR, "scrolls", caller)
+    os.makedirs(nj, exist_ok=True)
     with open(f"{nj}/{gend()}{mode[caller][0]}-{random()}.{mode[caller][1]}", "a") as f:
         f.write(tons)
     return

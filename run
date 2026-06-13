@@ -1,8 +1,9 @@
-#!/opt/homebrew/bin/python3.10
+#!/usr/bin/env python3.10
 import sys
 import asyncio
 from typing import Any, Optional
 
+import discord
 from discord.ext import commands
 
 from src import serf, chisel, studio
@@ -91,6 +92,22 @@ class MessageCollector(commands.Bot):
             message = await self.stalker.on_raw_react(raw_reaction, self)
             if message is not None:
                 await self.server.get("channel").send(message)
+
+    async def on_reaction_add(self, reaction, user) -> None:
+        # React 👴 to a message and we reply to it with a GPT-4o-composed,
+        # Uncle-Joe-voiced mp3. studio.go is blocking, so offload it.
+        if reaction.me and str(reaction.emoji) == "👴":
+            loop = asyncio.get_running_loop()
+            path = await loop.run_in_executor(
+                None,
+                studio.go,
+                reaction.message.author.display_name,
+                reaction.message.content,
+            )
+            await reaction.message.channel.send(
+                file=discord.File(path),
+                reference=reaction.message,
+            )
 
     # ------------------------------------------------------------------
     # CONFIG
