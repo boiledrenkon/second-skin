@@ -87,7 +87,7 @@ class Intern:
     async def reap(self) -> None:
         try:
             while self._reap_cb():
-                whisp = await self._ama()
+                whisp = await self.ama()
                 self.whisp_cache += whisp
                 print(f"\nCollecting from: {self._sun}")
                 print(f"Basket size: {len(self.whisp_cache)}")
