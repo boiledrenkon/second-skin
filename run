@@ -1,0 +1,238 @@
+#!/opt/homebrew/bin/python3.10
+import sys
+import asyncio
+from typing import Any, Optional
+
+from discord.ext import commands
+
+from src import serf, chisel, studio
+from src.stalker import Stalker
+from src.util import open_toml, resolve_user_token, resolve_input
+
+
+def name(user) -> str:
+    return f"{user.display_name}"
+
+
+def location(server: dict) -> str:
+    cname = str(server.get("channel"))
+    sname = str(server.get("server"))
+    return f"{cname}::{sname}"
+
+
+class MessageCollector(commands.Bot):
+    def __init__(self) -> None:
+        super().__init__(
+            command_prefix="¡",
+            self_bot=True,
+            help_command=None,
+            intents=None,
+        )
+        # Operational state — populated in on_ready (needs self.user to exist)
+        self.intern: Optional[serf.Intern] = None
+        self.config: Any = None
+        self.server: Optional[dict] = None
+        self.stalker: Optional[Stalker] = None
+        self.setup_commands()
+
+    def setup_commands(self) -> None:
+        registry = [
+            # config
+            (self.reset_cfg, "reset_cfg"),
+            (self.where, "where"),
+            # channel / server connection
+            (self.which_channel, "which_channel"),
+            (self.set_channel, "set_channel"),
+            (self.reset_channel, "reset_channel"),
+            (self.sendto, "sendto"),
+            # user stalking
+            (self.which_user, "which_user"),
+            (self.set_user, "set_user"),
+            (self.reset_user, "reset_user"),
+            # collection
+            (self.note, "note"),
+            (self.nott, "nott"),
+            (self.delete, "delete"),
+            (self.delet, "delet"),
+            # misc
+            (self.repeat, "repeat"),
+            (self.diagnostic, "diagnostic"),
+        ]
+        for fn, cmd_name in registry:
+            self.add_command(commands.Command(fn, name=cmd_name))
+
+    # ------------------------------------------------------------------
+    # LIFECYCLE / EVENTS
+    # ------------------------------------------------------------------
+    def init_state(self) -> None:
+        self.intern = serf.Intern(self.user)
+        self.config = open_toml("servers")
+        self.server = None
+        self.stalker = None
+
+    async def on_ready(self) -> None:
+        self.init_state()
+        print("Online")
+
+    async def on_message(self, message) -> None:
+        # Real discord.py (1.7.3) event. Overriding it means we MUST call
+        # process_commands at the end, or the ¡-prefixed commands stop firing.
+        if self.stalker is not None:
+            batch = self.stalker.on_message(message)
+            if batch:
+                # studio.summaries is blocking (sync OpenAI calls + sleeps), so
+                # run it off the event loop to keep the bot's heartbeat alive.
+                loop = asyncio.get_running_loop()
+                await loop.run_in_executor(None, studio.summaries, batch)
+        await self.process_commands(message)
+
+    async def on_raw_reaction_add(self, raw_reaction) -> None:
+        if self.stalker is not None and self.server is not None:
+            message = await self.stalker.on_raw_react(raw_reaction, self)
+            if message is not None:
+                await self.server.get("channel").send(message)
+
+    # ------------------------------------------------------------------
+    # CONFIG
+    # ------------------------------------------------------------------
+    async def reset_cfg(self, ctx: commands.Context) -> None:
+        self.config = open_toml("servers")
+
+    async def where(self, ctx: commands.Context) -> None:
+        print(dir(ctx))
+
+    # ------------------------------------------------------------------
+    # CHANNEL / SERVER CONNECTION
+    # ------------------------------------------------------------------
+    async def which_channel(self, ctx: commands.Context, flag: Optional[str] = None) -> None:
+        if self.server is not None:
+            await ctx.send(f"Now connected to: {location(self.server)}")
+        else:
+            await ctx.send("Not connected currently")
+            if flag == "l":
+                channels = "\n".join(f"{srv}" for srv in self.config.get("servers"))
+                await ctx.send(f"list: \n{channels}")
+
+    async def set_channel(self, ctx: commands.Context, server: str) -> None:
+        entry = self.config.get("servers", {}).get(server)
+        if entry is not None:
+            channel_id = entry.get("gen")
+            guild_id = entry.get("id")
+            self.server = {
+                "channel": self.get_channel(channel_id),
+                "server": self.get_guild(guild_id),
+            }
+            await ctx.send(f"Now connected to: {location(self.server)}")
+        else:
+            await ctx.send("Channel not found")
+
+    async def reset_channel(self, ctx: commands.Context) -> None:
+        if self.server is not None:
+            await ctx.send(f"Disconnecting from: {location(self.server)}")
+        self.server = None
+
+    async def sendto(self, ctx: commands.Context, *args) -> None:
+        if self.server is not None:
+            channel = self.server.get("channel")
+            await channel.send(" ".join(args))
+        else:
+            await ctx.send("Not connected currently")
+
+    # ------------------------------------------------------------------
+    # USER STALKING
+    # ------------------------------------------------------------------
+    async def which_user(self, ctx: commands.Context) -> None:
+        if self.stalker is not None:
+            await ctx.send(f"Now stalking {name(self.stalker.user)}")
+        else:
+            await ctx.send("No target currently")
+
+    async def set_user(self, ctx: commands.Context, message: str) -> None:
+        try:
+            user_id = int(message)
+        except ValueError:
+            await ctx.send(f"Poorly formatted user_id: {message}")
+            return
+
+        user = await self.fetch_user(user_id)
+        u_n = name(user)
+        if self.stalker is not None:
+            await ctx.send(f"Switching target from {name(self.stalker.user)} to {u_n}")
+        else:
+            await ctx.send(f"Target set to {u_n}")
+        self.stalker = Stalker(user)
+
+    async def reset_user(self, ctx: commands.Context) -> None:
+        if self.stalker is not None:
+            await ctx.send(f"Saying goodbye to: {name(self.stalker.user)}")
+        self.stalker = None
+
+    # ------------------------------------------------------------------
+    # COLLECTION
+    # ------------------------------------------------------------------
+    def _target_channel(self, ctx: commands.Context) -> Any:
+        if self.server is not None and self.server.get("channel") is not None:
+            return self.server.get("channel")
+        return ctx.channel
+
+    async def note(self, ctx: commands.Context) -> None:
+        await self.nott(ctx, "an", "09102023")
+
+    async def nott(
+        self,
+        ctx: commands.Context,
+        collect_flags: str,
+        start_date: str,
+        target: Optional[str] = None,
+    ) -> None:
+        start_date, target = resolve_input(start_date, target)
+        self.intern.setup(collect_flags, self._target_channel(ctx), start_date, target)
+        await self.intern.reap()
+        # only using data available in all formats currently
+        chisel.editor(self.intern.whisp_cache, 1)  # editor_key
+        self.intern.reset()
+
+    async def delete(self, ctx: commands.Context) -> None:
+        await self.delet(ctx, "mn", "01282024")
+
+    async def delet(
+        self,
+        ctx: commands.Context,
+        collect_flags: str,
+        start_date: Optional[str] = None,
+        target: Optional[str] = None,
+    ) -> None:
+        start_date, target = resolve_input(start_date, target)
+        self.intern.setup(collect_flags, self._target_channel(ctx), start_date, target)
+        await self.intern.reap()
+        await self.intern.shred()
+        self.intern.reset()
+
+    # ------------------------------------------------------------------
+    # MISC
+    # ------------------------------------------------------------------
+    async def repeat(self, ctx: commands.Context, message: str) -> None:
+        while True:
+            await ctx.send(message)
+            await asyncio.sleep(0.5)
+
+    async def diagnostic(self, ctx: commands.Context, message: str) -> None:
+        print(dir(ctx))
+        print(message)
+
+
+def main() -> None:
+    if len(sys.argv) < 2:
+        exit("Please invoke with username")
+
+    try:
+        token = resolve_user_token(sys.argv[1])
+        client = MessageCollector()
+        client.run(token, bot=False)
+    except Exception as e:
+        print(f"Error starting bot: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

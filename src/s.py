@@ -1,12 +1,8 @@
+from collections import Counter
+
+
 def people(whisp_cache, threshold=0):
-    group = {
-        whisp.author.name: whisp.author.name.append(whisp) or [whisp]
-        for whisp in whisp_cache
-    }
-    dictionary = {
-        author: len(messages)
-        for author, messages in group
-        if len(messages) > threshold
-    }
-    print(list(dictionary.keys()))
+    counts = Counter(whisp.author.name for whisp in whisp_cache)
+    names = [author for author, n in counts.items() if n > threshold]
+    print(names)
     return
